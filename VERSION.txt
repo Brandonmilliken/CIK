@@ -1,0 +1,25 @@
+cik-v1  built 2026-10-13   First version of CIK Office on Vercel
+
+Copied from Jarvis v181 (Brandonmilliken/Jarvis) and cut down for Cash Is King.
+
+Kept: the room engine (lists, edit, one-time import), help tickets and the
+Support Center, announcements, Leadership Settings, search, display settings,
+the phone layout and the Privacy / Terms pages.
+
+Removed: Sisu, Sierra, Fello, Relitix, Slack, Shilo, Trainual, Asana, Ask
+Matin AI, the MRE rooms, the MRE dashboard, the mreoffice.com redirects, the
+crons and the GitHub refresh workflow.
+
+New for CIK:
+- 22 rooms in CIK Office's own order (lib/office-rooms.js), with CIK Office's
+  fields. Rooms that had data there are filled by the one-time import; the rest
+  start empty.
+- Sign-in: anyone @cashisking.com. First sign-in adds them as an agent;
+  Brandon is the super admin; leadership sets roles in Leadership Settings.
+- Home page: announcements with "Got it", quick links, and a Deals tab that
+  says the Podio dashboard is next.
+- Import from cikoffice.com (scripts/office-import.browser.js).
+- Logo and icons are PLACEHOLDERS ("CIK" lettering) until the real Cash Is
+  King logo is added to public/brand/.
+
+Tests: 1,331 passed across 41 suites (cik.test.mjs is the CIK-specific one).

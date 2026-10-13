@@ -1,0 +1,1068 @@
+/* Side menu + room pages. Everything is prefixed jx- so none of it can reach
+   into the dashboard's own styles, which are global and unprefixed. */
+:root {
+  /* v181 (scan): built-in controls (checkboxes, scrollbars, file pickers)
+     drawn dark in dark mode; light mode sets its own. */
+  color-scheme: dark;
+  /* v145 (Brandon, 2026-10-05): dark mode is true black. Cards and the
+     raised parts keep their dark greys so they still stand out. */
+  --jx-bg: #000000;
+  --jx-side: #000000;
+  /* v168/v169: almost-black boxes, as on the dashboard (were #131316 / #1a1a1f). */
+  --jx-panel: #060607;
+  --jx-panel2: #111114;
+  --jx-line: #26262c;
+  --jx-line2: #33333b;
+  --jx-text: #f4f3f1;
+  --jx-dim: #a3a09a;
+  --jx-dimmer: #8a8782;
+  --jx-gold: #d8b26a;
+  --jx-gold-soft: rgba(201,168,96,0.13);
+  --jx-gold-line: rgba(216,178,106,0.28);
+  --jx-w: 236px;
+  --jx-font: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --jx-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.jx-side, .jx-side *, .jx-menubtn, .jx-bar, .jx-bar *, .jx-display, .jx-display *, .jx-room, .jx-room * { box-sizing: border-box; }
+
+/* v124: "Skip to content", first thing a keyboard reaches on every page. */
+.jx-skip {
+  position: fixed; left: 12px; top: -80px; z-index: 100;
+  background: var(--jx-gold); color: #0b0b0d; font: 600 15px var(--jx-font);
+  padding: 12px 16px; border-radius: 10px; text-decoration: none;
+}
+.jx-skip:focus { top: calc(10px + env(safe-area-inset-top)); outline: 3px solid #fff; outline-offset: 2px; }
+.jx-main:focus { outline: none; }
+
+.jx-side {
+  position: fixed; top: 0; left: 0; bottom: 0; width: var(--jx-w);
+  overflow-y: auto; overscroll-behavior: contain;
+  background: var(--jx-side); border-right: 1px solid var(--jx-line);
+  padding: 16px 10px 22px; z-index: 35;
+  font-family: var(--jx-font); font-size: 14px; line-height: 1.35; color: var(--jx-text);
+  scrollbar-width: thin; scrollbar-color: var(--jx-line2) transparent;
+}
+.jx-group { margin-bottom: 14px; }
+.jx-grouplabel {
+  font-family: var(--jx-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--jx-dimmer); padding: 6px 10px 5px;
+}
+.jx-item {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 7px 10px; border-radius: 8px; color: var(--jx-dim); text-decoration: none;
+}
+.jx-item:hover { background: var(--jx-panel2); color: var(--jx-text); }
+.jx-item[aria-current="page"] {
+  background: var(--jx-gold-soft); color: var(--jx-text);
+  box-shadow: inset 0 0 0 1px var(--jx-gold-line);
+}
+.jx-jump { background: none; border: 0; font: inherit; text-align: left; cursor: pointer; }
+.jx-onpagelist { list-style: none; margin: 0; padding: 0; }
+.jx-onpage { border-bottom: 1px solid var(--jx-line); padding-bottom: 10px; }
+.jx-itemlabel { flex: 1; min-width: 0; }
+.jx-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  border: 1.5px solid var(--jx-dimmer); display: inline-block;
+}
+.jx-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.jx-foot { border-top: 1px solid var(--jx-line); margin-top: 8px; padding: 14px 10px 0; }
+.jx-footbtn {
+  display: flex; align-items: center; gap: 8px; width: 100%; margin: 0 0 14px;
+  background: var(--jx-panel2); color: var(--jx-text); border: 1px solid var(--jx-line2);
+  border-radius: 8px; padding: 9px 10px; font: 500 14px var(--jx-font); cursor: pointer; text-align: left;
+}
+.jx-footbtn span[aria-hidden] { font-weight: 700; color: var(--jx-gold); }
+.jx-legend { font-size: 12px; color: var(--jx-dimmer); display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.jx-out {
+  display: inline-block; font-size: 13px; color: var(--jx-gold); text-decoration: none;
+  border: 1px solid var(--jx-gold-line); border-radius: 8px; padding: 6px 10px;
+}
+.jx-out:hover { background: var(--jx-gold-soft); }
+.jx-side :focus-visible, .jx-bar :focus-visible, .jx-display :focus-visible, .jx-room :focus-visible {
+  outline: 2px solid var(--jx-gold); outline-offset: 2px;
+}
+
+/* ---------- v124: the phone/tablet top bar ---------- */
+.jx-bar { display: none; }
+.jx-scrim { display: none; }
+.jx-closebtn {
+  display: none; width: 100%; margin: 0 0 12px; text-align: left;
+  background: var(--jx-panel2); color: var(--jx-text); border: 1px solid var(--jx-line2);
+  border-radius: 8px; padding: 9px 10px; font: 500 14px var(--jx-font); cursor: pointer;
+}
+
+@media (min-width: 1000px) {
+  .jx-main { margin-left: var(--jx-w); }
+}
+@media (max-width: 999.98px) {
+  :root { --jx-barh: 56px; }
+  .jx-bar {
+    display: flex; align-items: center; gap: 8px;
+    position: sticky; top: 0; z-index: 45;
+    height: calc(var(--jx-barh) + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) calc(10px + env(safe-area-inset-right)) 0 calc(10px + env(safe-area-inset-left));
+    background: var(--jx-bg); border-bottom: 1px solid var(--jx-line);
+    font-family: var(--jx-font); color: var(--jx-text);
+  }
+  .jx-menubtn, .jx-dispbtn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-width: 44px; min-height: 44px; padding: 0 12px;
+    background: var(--jx-panel); color: var(--jx-text); border: 1px solid var(--jx-line2);
+    border-radius: 10px; font: 600 15px var(--jx-font); cursor: pointer;
+  }
+  .jx-dispbtn { margin-left: auto; font-weight: 700; color: var(--jx-gold); }
+  .jx-brand { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 6px; color: var(--jx-text); text-decoration: none; font-size: 17px; font-weight: 600; }
+  .jx-mk {
+    width: 30px; height: 30px; border-radius: 8px; background: var(--jx-gold-soft);
+    border: 1px solid var(--jx-gold-line); display: grid; place-items: center; color: var(--jx-gold); font-size: 15px; font-weight: 500;
+  }
+  /* v167 (Brandon, 2026-10-08): the Matin logo, black and white, in place of
+     the gold letter M. The menu and top bar are black in both themes, so a
+     faint white edge keeps the black square visible. */
+  .jx-mk.jx-mkimg {
+    display: block; padding: 0; background: #000; border: 1px solid rgba(255, 255, 255, .18); object-fit: cover;
+  }
+  .jx-closebtn { display: flex; align-items: center; gap: 8px; min-height: 48px; font-size: 15px; }
+  .jx-side {
+    z-index: 60; width: min(320px, 88vw);
+    padding: calc(14px + env(safe-area-inset-top)) 10px calc(22px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));
+    transform: translateX(-100%); visibility: hidden;
+    transition: transform .18s ease, visibility 0s linear .18s;
+    box-shadow: 12px 0 40px rgba(0,0,0,.5);
+  }
+  .jx-side[data-open="true"] { transform: none; visibility: visible; transition: transform .18s ease; }
+  .jx-scrim[data-open="true"] { display: block; position: fixed; inset: 0; z-index: 59; background: rgba(0,0,0,.6); }
+  /* Big enough to hit with a thumb: 48px rows, 15px words. */
+  .jx-item { min-height: 48px; padding: 10px 12px; font-size: 15px; }
+  .jx-grouplabel { font-size: 12px; }
+  .jx-footbtn, .jx-out { min-height: 48px; font-size: 15px; }
+  .jx-out { display: inline-flex; align-items: center; padding: 8px 14px; }
+  .jx-legend { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { .jx-side { transition: none !important; } }
+.jx-locked, .jx-locked body { overflow: hidden; }
+
+/* ---------- v124: display settings sheet ---------- */
+.jx-display {
+  position: fixed; z-index: 70; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: min(440px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow-y: auto;
+  background: var(--jx-panel); color: var(--jx-text); border: 1px solid var(--jx-line2); border-radius: 16px;
+  padding: 18px 18px 16px; box-shadow: 0 24px 64px rgba(0,0,0,.6);
+  font-family: var(--jx-font); font-size: 15px; line-height: 1.45;
+}
+.jx-display[hidden] { display: none; }
+.jx-dispscrim[data-open="true"] { display: block; position: fixed; inset: 0; z-index: 69; background: rgba(0,0,0,.6); }
+.jx-disphead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.jx-disphead h2 { font-size: 19px; font-weight: 600; margin: 0; }
+.jx-disphead .jx-ghost { min-height: 44px; padding: 0 16px; font-size: 15px; }
+.jx-disphelp { color: var(--jx-dim); font-size: 14px; margin: 6px 0 14px; }
+.jx-fs { border: 0; margin: 0 0 12px; padding: 0; }
+.jx-fs legend { font-weight: 600; margin-bottom: 8px; padding: 0; }
+.jx-segs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.jx-seg { position: relative; }
+.jx-seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.jx-seg > span {
+  display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 8px;
+  border: 1px solid var(--jx-line2); border-radius: 10px; background: var(--jx-panel2); color: var(--jx-dim); text-align: center;
+}
+/* v181 (scan): the text-size samples only ("Light" was bigger than "Dark"). */
+.jx-segs:not(.jx-segs2) .jx-seg:nth-child(2) > span { font-size: 17px; }
+.jx-segs:not(.jx-segs2) .jx-seg:nth-child(3) > span { font-size: 19px; }
+.jx-seg input:checked + span { background: var(--jx-gold-soft); color: var(--jx-text); border-color: var(--jx-gold); font-weight: 600; }
+.jx-seg input:focus-visible + span { outline: 2px solid var(--jx-gold); outline-offset: 2px; }
+.jx-toggle { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 0; border-top: 1px solid var(--jx-line); cursor: pointer; }
+.jx-toggle input { width: 24px; height: 24px; margin: 0; flex-shrink: 0; accent-color: var(--jx-gold); cursor: pointer; }
+.jx-toggletext { display: flex; flex-direction: column; }
+.jx-togglelabel { font-weight: 600; }
+.jx-togglehelp { font-size: 13.5px; color: var(--jx-dim); }
+.jx-reset { min-height: 44px; font-size: 14px; margin-top: 6px; }
+
+/* ---------- room pages ---------- */
+.jx-room {
+  min-height: 100vh; background: var(--jx-bg); color: var(--jx-text);
+  font-family: var(--jx-font); font-size: 15px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.jx-roominner { max-width: 620px; margin: 0 auto; padding: 56px 18px 120px; }
+.jx-kicker { font-family: var(--jx-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--jx-dimmer); margin: 0 0 8px; }
+.jx-room h1 { font-weight: 600; font-size: 30px; letter-spacing: -.012em; line-height: 1.2; margin: 0 0 18px; }
+.jx-card {
+  background: var(--jx-panel); border: 1px solid var(--jx-line2); border-radius: 12px;
+  padding: 18px 18px 20px;
+}
+.jx-card p { color: var(--jx-dim); margin: 0 0 12px; }
+.jx-card p:last-child { margin-bottom: 0; }
+.jx-card strong { color: var(--jx-text); font-weight: 600; }
+.jx-btn {
+  display: inline-block; background: var(--jx-gold); color: #0b0b0d; text-decoration: none;
+  font-weight: 600; font-size: 14px; border-radius: 8px; padding: 9px 14px; margin: 4px 0 12px;
+}
+.jx-btn:hover { filter: brightness(1.06); }
+.jx-note { font-size: 13px; color: var(--jx-dimmer); margin-top: 18px; }
+
+/* ---------- list rooms (Tech Stack, first) ---------- */
+.jx-roominner.jx-wide { max-width: 1040px; }
+.jx-roomhead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.jx-roomhead h1 { margin-bottom: 6px; }
+.jx-blurb { color: var(--jx-dim); margin: 0; max-width: 60ch; }
+.jx-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 14px; }
+.jx-cardi {
+  background: var(--jx-panel); border: 1px solid var(--jx-line2); border-radius: 12px;
+  padding: 16px 16px 14px; min-width: 0; display: flex; flex-direction: column;
+}
+.jx-cardi h2 { font-size: 16px; font-weight: 600; margin: 0 0 6px; line-height: 1.35; overflow-wrap: anywhere; }
+.jx-cardi h2 a { color: var(--jx-text); text-decoration: none; }
+.jx-cardi h2 a:hover { color: var(--jx-gold); }
+.jx-cardi h2 a span[aria-hidden] { color: var(--jx-dimmer); font-size: 13px; }
+.jx-desc { color: var(--jx-dim); font-size: 14px; line-height: 1.55; margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.jx-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: auto; padding-top: 12px; }
+.jx-ghost {
+  background: var(--jx-panel2); color: var(--jx-text); border: 1px solid var(--jx-line2);
+  border-radius: 8px; padding: 6px 11px; font: 500 13px var(--jx-font); cursor: pointer;
+}
+.jx-ghost:hover:not(:disabled) { border-color: var(--jx-gold-line); }
+.jx-ghost:disabled, .jx-btn:disabled, .jx-danger:disabled { opacity: .45; cursor: default; }
+.jx-dangertext { color: #eba29c; }
+.jx-danger {
+  background: #7a2f2a; color: #fff; border: 1px solid #a3443d; border-radius: 8px;
+  padding: 6px 11px; font: 600 13px var(--jx-font); cursor: pointer;
+}
+.jx-confirm { font-size: 13px; color: var(--jx-text); margin-right: 2px; }
+.jx-btnsm { margin: 0; padding: 7px 13px; font-size: 13px; border: 0; cursor: pointer; font-family: var(--jx-font); }
+.jx-add {
+  display: block; width: 100%; margin: 0 0 14px; padding: 12px; border-radius: 12px; cursor: pointer;
+  background: transparent; color: var(--jx-gold); border: 1px dashed var(--jx-gold-line); font: 600 14px var(--jx-font);
+}
+.jx-add:hover { background: var(--jx-gold-soft); }
+.jx-form { border-color: var(--jx-gold-line); gap: 10px; }
+.jx-formtitle { font-size: 15px; }
+.jx-field label { display: block; font-size: 12.5px; color: var(--jx-dim); margin-bottom: 4px; }
+.jx-opt { color: var(--jx-dimmer); }
+.jx-field input, .jx-field textarea {
+  width: 100%; background: var(--jx-panel2); color: var(--jx-text); border: 1px solid var(--jx-line2);
+  border-radius: 8px; padding: 8px 10px; font: 14px/1.45 var(--jx-font); resize: vertical;
+}
+.jx-field input:focus, .jx-field textarea:focus { outline: none; border-color: var(--jx-gold); }
+.jx-field [aria-invalid="true"] { border-color: #e0736b; }
+.jx-err { color: #eba29c; font-size: 12.5px; margin-top: 4px; }
+.jx-formbtns { display: flex; gap: 8px; margin-top: 2px; }
+.jx-live { min-height: 0; font-size: 13px; color: var(--jx-gold); margin: 0 0 10px; }
+.jx-live:empty { margin: 0; }
+
+/* ---------- grouped lists: search, filter chips, section heads ---------- */
+.jx-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin: 0 0 18px; }
+.jx-search {
+  flex: 1 1 260px; max-width: 360px; background: var(--jx-panel); color: var(--jx-text);
+  border: 1px solid var(--jx-line2); border-radius: 10px; padding: 9px 12px; font: 14px var(--jx-font);
+}
+.jx-search:focus { outline: none; border-color: var(--jx-gold); }
+.jx-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.jx-chip {
+  background: transparent; color: var(--jx-dim); border: 1px solid var(--jx-line2); border-radius: 999px;
+  padding: 5px 12px; font: 500 13px var(--jx-font); cursor: pointer;
+}
+.jx-chip[aria-pressed="true"] { background: var(--jx-gold-soft); color: var(--jx-text); border-color: var(--jx-gold-line); }
+.jx-count { margin-left: auto; font-size: 12.5px; color: var(--jx-dimmer); }
+.jx-lgroup + .jx-lgroup, .jx-formrow + .jx-lgroup { margin-top: 22px; }
+.jx-formrow { margin-bottom: 14px; }
+.jx-grouphead {
+  font-family: var(--jx-mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--jx-dimmer); margin: 0 0 10px;
+}
+.jx-grouphead span { color: var(--jx-dimmer); }
+.jx-sub { font-size: 12.5px; color: var(--jx-dimmer); margin: -2px 0 6px; }
+.jx-field select {
+  width: 100%; background: var(--jx-panel2); color: var(--jx-text); border: 1px solid var(--jx-line2);
+  border-radius: 8px; padding: 8px 10px; font: 14px/1.45 var(--jx-font);
+}
+.jx-field select:focus { outline: none; border-color: var(--jx-gold); }
+@media (max-width: 720px) { .jx-count { margin-left: 0; } .jx-search { max-width: none; } }
+.jx-more {
+  background: none; border: 0; padding: 4px 0 0; color: var(--jx-gold); font: 500 13px var(--jx-font); cursor: pointer;
+}
+.jx-more:hover { text-decoration: underline; }
+.jx-aside { margin-top: 18px; }
+.jx-aside a { color: var(--jx-gold); }
+.jx-contact { display: flex; flex-direction: column; gap: 3px; margin-top: 2px; min-width: 0; }
+.jx-cline { font-size: 13.5px; color: var(--jx-dim); text-decoration: none; overflow-wrap: anywhere; }
+.jx-contact a.jx-cline:hover { color: var(--jx-gold); }
+.jx-badge {
+  align-self: flex-start; font-family: var(--jx-mono); font-size: 11px; letter-spacing: .06em;
+  color: var(--jx-gold); border: 1px solid var(--jx-gold-line); border-radius: 999px; padding: 1px 8px; margin-bottom: 3px;
+}
+/* v88 Vendors: the "Preferred" badge on a card and its filter chip. */
+.jx-cardi > .jx-flag { display: inline-block; align-self: flex-start; width: max-content; margin: 2px 0 4px; }
+.jx-chip.jx-flagchip { color: var(--jx-gold); }
+/* v89 MLS Info: labelled detail lines on a card, and a room's second list
+   (the rule-book PDFs) as its own section under the first. */
+.jx-detail { margin: 2px 0 0; font-size: 13.5px; color: var(--jx-dim); overflow-wrap: anywhere; }
+.jx-detail a { color: var(--jx-dim); text-decoration: none; }
+.jx-detail a:hover { color: var(--jx-gold); }
+.jx-dlabel { font-family: var(--jx-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--jx-dimmer); margin-right: 8px; }
+.jx-part { margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--jx-line); }
+.jx-partrow { align-items: center; }
+.jx-parthead { font-size: 22px; font-weight: 600; margin: 0 0 12px; }
+/* v91 Employee Benefits: fixed cards at the top of a room. */
+.jx-intro { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 14px; margin: 0 0 28px; }
+.jx-introcard { display: flex; flex-direction: column; gap: 2px; margin: 0; }
+.jx-introname { font-size: 17px; font-weight: 600; margin: 0; color: var(--jx-text); }
+.jx-introrole { font-size: 13.5px; color: var(--jx-gold); margin: 0; }
+.jx-introbtn { align-self: flex-start; margin-top: 12px; text-decoration: none; }
+.jx-card.jx-introcard p { margin: 0; }
+.jx-card.jx-introcard .jx-introname { color: var(--jx-text); margin-bottom: 2px; }
+.jx-card.jx-introcard .jx-kicker { margin-bottom: 8px; }
+.jx-card.jx-introcard .jx-sub { margin: 0 0 8px; }
+.jx-qr { display: block; width: 168px; height: 168px; margin: 6px 0 10px; border-radius: 6px; }
+.jx-introsec { margin: 6px 0 4px; }
+.jx-introsec h3 { font-size: 14px; margin: 6px 0 2px; color: var(--jx-text); }
+.jx-card.jx-introcard .jx-introsec p { margin: 0 0 4px; }
+.jx-introsec ol { margin: 4px 0 0; padding-left: 20px; }
+.jx-introsec li { margin: 2px 0; }
+/* v94 Past CE Classes: tags on a card. */
+.jx-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 6px; }
+.jx-tags .jx-badge { margin: 0; }
+/* v94 help tickets. */
+.jx-tform { max-width: 720px; }
+.jx-tpair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .jx-tpair { grid-template-columns: 1fr; } }
+.jx-tsent { margin-bottom: 16px; border-color: var(--jx-gold-line); }
+.jx-tsent a { color: var(--jx-gold); }
+.jx-tlist { display: flex; flex-direction: column; gap: 10px; }
+.jx-ticket summary { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; cursor: pointer; list-style: none; }
+.jx-ticket summary::-webkit-details-marker { display: none; }
+.jx-ticket summary:focus-visible { outline: 2px solid var(--jx-gold); outline-offset: 4px; border-radius: 4px; }
+.jx-ttitle { font-size: 15.5px; font-weight: 600; color: var(--jx-text); overflow-wrap: anywhere; }
+.jx-ticket[open] .jx-sub { margin-top: 6px; }
+.jx-tstat { flex-shrink: 0; margin: 0; }
+.jx-tstat-resolved { color: var(--jx-dim); border-color: var(--jx-line2); }
+.jx-tstat-waiting-on-agent { color: var(--jx-text); }
+.jx-tcounts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 16px; }
+@media (max-width: 720px) { .jx-tcounts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.jx-tcount { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; cursor: pointer; text-align: left; font: inherit; color: inherit; margin: 0; }
+/* v181 (scan): the picked count card is plainly picked (the border alone
+   was about 1:1 against the others). */
+.jx-tcount[aria-pressed="true"] { border-color: var(--jx-gold); background: var(--jx-gold-soft); box-shadow: inset 0 0 0 1px var(--jx-gold); }
+.jx-tcount[aria-pressed="true"] .jx-tnum { color: var(--jx-gold); }
+.jx-tnum { font-size: 26px; font-weight: 600; color: var(--jx-text); }
+.jx-tlabel { font-family: var(--jx-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--jx-dimmer); }
+.jx-tedit { margin-top: 12px; border-top: 1px solid var(--jx-line); padding-top: 12px; }
+/* v170: the conversation on a ticket, and the marks for something new. */
+.jx-tbadges { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; flex-shrink: 0; }
+.jx-tbadges .jx-badge { margin: 0; }
+.jx-tflag { color: #fff; background: #e0263c; border-color: #e0263c; }
+.jx-ticket.jx-tnew { border-color: var(--jx-gold-line); }
+.jx-thread { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.jx-msg { border: 1px solid var(--jx-line); border-radius: 10px; padding: 10px 12px; background: var(--jx-panel2); }
+.jx-msg-sup { border-left: 3px solid var(--jx-gold); }
+.jx-msg-agent { border-left: 3px solid var(--jx-line2); }
+.jx-msghead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin: 0 0 4px; font-size: 13px; color: var(--jx-dimmer); }
+.jx-msghead strong { color: var(--jx-text); font-weight: 600; }
+.jx-msgbody { color: var(--jx-text); }
+.jx-msgstat { margin: 6px 0 0; font-family: var(--jx-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--jx-gold); }
+.jx-msgline { font-size: 13px; color: var(--jx-dimmer); padding: 2px 4px; }
+.jx-msgline strong { color: var(--jx-dim); font-weight: 600; }
+.jx-treply textarea { width: 100%; }
+.jx-tstatpick { max-width: 260px; }
+.jx-detail a { color: var(--jx-dim); }
+/* v98 Transactions: the five lifecycle steps. */
+.jx-steps { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 0 0 24px; padding: 0; }
+.jx-steps li { margin: 0; }
+.jx-step {
+  width: 100%; height: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  text-align: left; cursor: pointer; font: inherit; color: var(--jx-text);
+  background: var(--jx-panel, #141417); border: 1px solid var(--jx-line, #26262b); border-radius: 12px; padding: 12px 14px;
+}
+.jx-step:hover { border-color: var(--jx-gold-line); }
+.jx-step[aria-pressed="true"] { background: var(--jx-gold-soft); border-color: var(--jx-gold-line); }
+.jx-stepno { font-family: var(--jx-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--jx-dimmer); }
+.jx-stepname { font-size: 14.5px; font-weight: 600; line-height: 1.3; }
+.jx-stepcount { font-size: 22px; font-weight: 600; color: var(--jx-gold); margin-top: 2px; }
+@media (max-width: 900px) { .jx-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) {
+  .jx-steps { grid-template-columns: 1fr; gap: 6px; }
+  .jx-step { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; row-gap: 0; padding: 8px 12px; }
+  .jx-stepno, .jx-stepname { grid-column: 1; }
+  .jx-stepcount { grid-column: 2; grid-row: 1 / span 2; align-self: center; margin: 0; font-size: 20px; }
+}
+
+
+/* v108: Ask Matin AI's unanswered questions */
+.jx-missed { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.jx-missed li { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.jx-card p.jx-missed-q { margin: 0 0 4px; font-weight: 600; color: var(--jx-text); overflow-wrap: anywhere; }
+.jx-missed .jx-sub { margin: 0; }
+
+/* ======================================================================
+   v124: phones and tablets, and the display settings.
+   The dashboard's own HTML is not edited for this; these rules reach it
+   from outside, through .jx-main, the column it sits in.
+   ====================================================================== */
+@media (max-width: 999.98px) {
+  /* The dashboard's own header: its logo moves up into the bar above, and
+     its Sections list into the menu ("On this page"). The Today strip stays,
+     pinned just under the bar. */
+  .jx-main #head { top: calc(var(--jx-barh) + env(safe-area-inset-top)); }
+  .jx-main #head .headbar { display: none; }
+  .jx-main section { scroll-margin-top: calc(var(--jx-barh) + env(safe-area-inset-top) + 52px); }
+  .jx-main #page { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
+
+  /* Ask Matin AI: clear of the home bar, and the sheet clear of it too. */
+  .jx-main #fab {
+    right: calc(16px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom));
+    min-height: 52px; padding: 0 20px; font-size: 15px;
+  }
+  .jx-main #chat { max-height: 88dvh; padding-bottom: env(safe-area-inset-bottom); }
+  .jx-main .chathead { min-height: 56px; }
+  /* Suggested questions: one row that scrolls sideways, so they never push
+     the conversation off the screen. */
+  .jx-main .sugg { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 10px; }
+  .jx-main .sugg button { white-space: nowrap; flex-shrink: 0; }
+
+  /* 16px in every box you type in: below that, iPhones zoom the whole page
+     in when the box is tapped and leave it zoomed. */
+  .jx-main input, .jx-main select, .jx-main textarea { font-size: 16px; }
+  .jx-main .agentbar select { min-height: 44px; width: 100%; }
+  .jx-main .chatform input { min-width: 0; min-height: 48px; }
+  .jx-main .chatform .btn { min-height: 48px; flex-shrink: 0; }
+
+  /* Thumb-sized buttons and links: 44px, Apple's and WCAG's target size. */
+  .jx-main .btn, .jx-main .chip, .jx-main .sugg button, .jx-main .ji, .jx-main #chatclose {
+    min-height: 44px;
+  }
+  .jx-main .btn.out { min-height: 44px; display: inline-flex; align-items: center; font-size: 12px; }
+  .jx-main .chip { padding: 8px 14px; font-size: 14px; }
+  .jx-main .sugg button { font-size: 14px; padding: 8px 14px; }
+  .jx-main details > summary { padding-top: 11px; padding-bottom: 11px; }
+  .jx-main .lead .contact { gap: 0 18px; }
+  .jx-main .lead .contact a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; }
+  .jx-main details.calls li { padding: 11px 0; font-size: 14.5px; }
+  .jx-main details.calls li .cn a { display: inline-block; padding: 4px 0; }
+
+  /* A long "Sisu · Sep 28, 2026, 12:02 PM PT" badge wraps instead of
+     pushing the page wider than the phone (it did at the largest text). */
+  .jx-main .tag { white-space: normal; max-width: 100%; }
+  /* Nothing smaller than 12px to read. */
+  .jx-main .lbl, .jx-main .tag, .jx-main .todo3 .k, .jx-main .tt th, .jx-main .lb .hd, .jx-main .st .l { font-size: 12px; }
+  .jx-main .banner, .jx-main .todo3 .x, .jx-main .st .v { font-size: 13.5px; }
+
+  /* Wide tables scroll sideways; a soft shadow at the edge says there is more. */
+  .jx-main .ttwrap {
+    background:
+      linear-gradient(to right, var(--panel) 30%, rgba(6,6,7,0)) left center / 28px 100% no-repeat local,
+      linear-gradient(to left, var(--panel) 30%, rgba(6,6,7,0)) right center / 28px 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, rgba(216,178,106,.4), rgba(216,178,106,0)) left center / 10px 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, rgba(216,178,106,.4), rgba(216,178,106,0)) right center / 10px 100% no-repeat scroll;
+  }
+  .jx-main .tt td { padding-top: 10px; padding-bottom: 10px; }
+
+  /* Room pages: the bar is the header now, so less empty space on top. */
+  .jx-roominner { padding-top: 22px; padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+  .jx-room h1 { font-size: 27px; }
+  .jx-chip, .jx-ghost, .jx-danger, .jx-btn, .jx-btnsm, .jx-tcount, .jx-more, .jx-add { min-height: 44px; }
+  .jx-chip { padding: 8px 14px; font-size: 14px; }
+  .jx-ghost, .jx-danger { padding: 8px 14px; font-size: 14px; }
+  .jx-btn { display: inline-flex; align-items: center; }
+  .jx-contact { gap: 0; }
+  .jx-contact a.jx-cline { display: inline-flex; align-items: center; min-height: 44px; font-size: 15px; }
+  .jx-detail a { display: inline-block; padding: 8px 0; }
+  .jx-cardi h2 a { display: inline-flex; align-items: center; min-height: 44px; }
+  .jx-room a.jx-cline { display: inline-flex; align-items: center; min-height: 44px; font-size: 15px; }
+  .jx-mlscov .tgrid { grid-template-columns: minmax(0, 1fr); }
+  .jx-mlscov .tbox { overflow-x: auto; }
+  .jx-search, .jx-field input, .jx-field textarea, .jx-field select { font-size: 16px; min-height: 44px; }
+  .jx-step { min-height: 56px; }
+  .jx-kicker, .jx-grouphead, .jx-stepno, .jx-tlabel, .jx-dlabel, .jx-badge { font-size: 12px; }
+  .jx-sub, .jx-cline, .jx-desc, .jx-note, .jx-count { font-size: 14px; }
+}
+
+/* ---------- display settings, any screen ---------- */
+/* Text size: the page's own layout grows with it, like a browser zoom that
+   keeps the menu and bar the same size. */
+.jx-text-large .jx-main #page, .jx-text-large .jx-main #strip, .jx-text-large .jx-main #chat,
+.jx-text-large .jx-roominner { zoom: 1.15; }
+.jx-text-xlarge .jx-main #page, .jx-text-xlarge .jx-main #strip, .jx-text-xlarge .jx-main #chat,
+.jx-text-xlarge .jx-roominner { zoom: 1.32; }
+.jx-text-large .jx-item, .jx-text-large .jx-footbtn { font-size: 16.5px; }
+.jx-text-xlarge .jx-item, .jx-text-xlarge .jx-footbtn { font-size: 18px; }
+.jx-text-large .jx-main #fab { font-size: 16.5px; }
+.jx-text-xlarge .jx-main #fab { font-size: 17px; }
+
+/* Higher contrast: grey text goes near-white, lines get stronger. Doubled
+   class so it wins over the dashboard's own :root colours. */
+.jx-contrast.jx-contrast {
+  --dim: #e2dfd9; --dimmer: #cdc9c2; --line: #50505c; --line2: #676774;
+  /* v169: same almost-black boxes as normal dark mode (were #101013 /
+     #1c1c22, lighter than normal), so Higher contrast never undoes them. */
+  --panel: #060607; --panel2: #111114; --panel3: #18181d;
+  --jx-panel: #060607; --jx-panel2: #111114;
+  --jx-dim: #e2dfd9; --jx-dimmer: #cdc9c2; --jx-line: #50505c; --jx-line2: #676774;
+  --gold-line: rgba(216,178,106,0.6); --jx-gold-line: rgba(216,178,106,0.6);
+}
+.jx-contrast .jx-main :focus-visible, .jx-contrast .jx-room :focus-visible, .jx-contrast .jx-side :focus-visible {
+  outline-width: 3px; outline-color: #fff;
+}
+
+/* Less motion: nothing slides or fades. */
+.jx-motion-reduce *, .jx-motion-reduce *::before, .jx-motion-reduce *::after {
+  transition: none !important; animation: none !important; scroll-behavior: auto !important;
+}
+
+/* Underlined links. */
+.jx-links .jx-main a:not(.jx-btn):not(.btn), .jx-links .jx-room a:not(.jx-btn):not(.jx-item) {
+  text-decoration: underline !important; text-underline-offset: 3px; text-decoration-thickness: 1px;
+}
+
+/* v125: moving between rooms. */
+.jx-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 110; pointer-events: none; opacity: 0; }
+.jx-progress[data-on="true"] {
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, var(--jx-gold) 40%, var(--jx-gold) 60%, transparent);
+  background-size: 50% 100%; background-repeat: no-repeat;
+  animation: jx-progress 1s ease-in-out infinite;
+}
+@keyframes jx-progress { from { background-position: -50% 0; } to { background-position: 150% 0; } }
+@media (prefers-reduced-motion: reduce) { .jx-progress[data-on="true"] { animation: none; background: var(--jx-gold); } }
+.jx-motion-reduce .jx-progress[data-on="true"] { background: var(--jx-gold); }
+
+/* v127: the acknowledgement record in the Announcements room. */
+.jx-acklist { list-style: none; margin: 10px 0 0; padding: 0; }
+.jx-acklist li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--jx-line); }
+.jx-acklist li:first-child { border-top: 0; }
+
+/* v131: Leadership Settings. */
+.jx-super { border-color: var(--jx-gold-line); margin-bottom: 14px; }
+.jx-rolelist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.jx-roleitem { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; align-items: center; padding: 12px 16px; }
+.jx-roleask { border-color: var(--jx-gold-line); }
+.jx-rolewho { display: flex; flex-direction: column; min-width: 0; }
+.jx-rolewho .jx-sub { margin: 0; overflow-wrap: anywhere; }
+.jx-rolepick select {
+  background: var(--jx-panel2); color: var(--jx-text); border: 1px solid var(--jx-line2);
+  border-radius: 8px; padding: 8px 10px; font: 14px var(--jx-font); min-height: 40px;
+}
+.jx-rolepick select:focus { outline: none; border-color: var(--jx-gold); }
+.jx-roleconfirm { grid-column: 1 / -1; border-top: 1px solid var(--jx-line); padding-top: 10px; }
+.jx-roleconfirm p { margin: 0 0 10px; color: var(--jx-dim); }
+.jx-rolesadd { margin-bottom: 14px; }
+@media (max-width: 999.98px) { .jx-rolepick select { font-size: 16px; min-height: 44px; } }
+
+/* ======================================================================
+   v132: light and dark. Dark is the default (no class). Light is
+   .jx-light on <html>, chosen in Settings (the gear, top right).
+   The class is doubled so it outranks the dashboard's own :root colours,
+   which load later in the page.
+   ====================================================================== */
+.jx-geardesk { display: none; }
+@media (min-width: 1000px) {
+  .jx-geardesk {
+    display: inline-flex; align-items: center; justify-content: center;
+    position: fixed; top: 12px; right: 16px; z-index: 46; width: 44px; height: 44px;
+    background: var(--jx-panel); color: var(--jx-text); border: 1px solid var(--jx-line2);
+    border-radius: 12px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  }
+  .jx-geardesk:hover { border-color: var(--jx-gold-line); color: var(--jx-gold); }
+  .jx-geardesk:focus-visible { outline: 2px solid var(--jx-gold); outline-offset: 2px; }
+}
+.jx-dispbtn .jx-gearicon { display: block; }
+.jx-segs2 { grid-template-columns: repeat(2, 1fr); }
+.jx-segicon { margin-right: 8px; font-size: 17px; }
+
+.jx-light.jx-light {
+  color-scheme: light;
+  /* the dashboard's colours */
+  --bg: #f6f4ef; --panel: #ffffff; --panel2: #f1eee7; --panel3: #e8e4da;
+  --line: #e3ded3; --line2: #d4cec1;
+  --text: #1c1b18; --dim: #55524b; --dimmer: #65625a;
+  /* v180 (scan): a darker gold and status greens/ambers, so gold words on
+     the gold tint (tabs, badges, "More") pass 4.5 : 1. */
+  --gold: #7a560f; --gold-soft: rgba(140,100,24,0.10); --gold-line: rgba(140,100,24,0.35);
+  --good: #256b42; --warn: #8f4c0f; --bad: #b3372f;
+  /* the menu's and the rooms' colours */
+  --jx-bg: #f6f4ef; --jx-side: #efece5; --jx-panel: #ffffff; --jx-panel2: #f1eee7;
+  --jx-line: #e3ded3; --jx-line2: #d4cec1;
+  --jx-text: #1c1b18; --jx-dim: #55524b; --jx-dimmer: #65625a;
+  --jx-gold: #7a560f; --jx-gold-soft: rgba(140,100,24,0.10); --jx-gold-line: rgba(140,100,24,0.35);
+}
+/* The page behind everything (set inline for the dark default). */
+.jx-light body, .jx-light .jx-room { background: var(--jx-bg) !important; color: var(--jx-text); }
+/* Words on a gold button: white on the darker gold (5.3 : 1). */
+.jx-light .jx-main .btn:not(.ghost):not(.out), .jx-light .jx-main #fab, .jx-light .jx-btn, .jx-light .jx-skip { color: #fff; }
+.jx-light .jx-main #fab, .jx-light .jx-geardesk, .jx-light .jx-menubtn { box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+.jx-light .jx-dangertext, .jx-light .jx-err { color: #b3372f; }
+.jx-light .jx-side { box-shadow: 12px 0 40px rgba(0,0,0,.15); }
+.jx-light .jx-scrim[data-open="true"] { background: rgba(20,18,14,.35); }
+.jx-light .jx-display { box-shadow: 0 24px 64px rgba(0,0,0,.2); }
+/* Higher contrast in light: darker words, stronger lines (the dark-theme
+   contrast colours are near-white and would vanish on a light page). */
+.jx-light.jx-contrast.jx-contrast {
+  --dim: #2e2c28; --dimmer: #3d3a35; --line: #b3ab9b; --line2: #9c9483; --panel: #ffffff; --panel2: #f1eee7;
+  --jx-dim: #2e2c28; --jx-dimmer: #3d3a35; --jx-line: #b3ab9b; --jx-line2: #9c9483;
+  --gold-line: rgba(120,84,16,0.7); --jx-gold-line: rgba(120,84,16,0.7);
+}
+.jx-light.jx-contrast .jx-main :focus-visible, .jx-light.jx-contrast .jx-room :focus-visible, .jx-light.jx-contrast .jx-side :focus-visible {
+  outline-color: #000;
+}
+
+/* ---- v134: the Team Dashboard ---- */
+.jx-teamsec { margin-top: 28px; }
+.jx-teamhead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.jx-teamhead .jx-parthead { margin: 0; }
+.jx-frameopen { font-size: 14px; color: var(--jx-gold); text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
+.jx-frameopen:hover { text-decoration: underline; }
+.jx-frame { position: relative; width: 100%; border: 1px solid var(--jx-line); border-radius: 14px; overflow: hidden; background: var(--jx-panel, #111); }
+.jx-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+/* Slides are 16:9 plus Google's thin control bar. */
+.jx-frame.jx-frame-slides { aspect-ratio: 16 / 9.5; max-height: 600px; }
+/* The calendar needs height for a month; a phone gets most of its screen. */
+.jx-frame.jx-frame-cal { height: min(720px, 80vh); min-height: 480px; }
+@media (max-width: 640px) {
+  .jx-frame { border-radius: 10px; }
+  .jx-frame.jx-frame-cal { height: 75vh; min-height: 440px; }
+}
+
+/* ---- v137: the help-ticket bell (admins and up), beside the gear ---- */
+.jx-bell {
+  position: relative; display: none; align-items: center; justify-content: center;
+  width: 44px; height: 44px; color: var(--jx-text); text-decoration: none;
+  background: var(--jx-panel); border: 1px solid var(--jx-line2); border-radius: 12px;
+}
+.jx-bell:hover { border-color: var(--jx-gold-line); color: var(--jx-gold); }
+.jx-bell:focus-visible { outline: 2px solid var(--jx-gold); outline-offset: 2px; }
+.jx-bell .jx-bellicon { display: block; }
+/* The badge: a red circle with the number, over the bell's top right corner. */
+.jx-bellcount {
+  position: absolute; top: -7px; right: -7px; min-width: 21px; height: 21px; padding: 0 5px;
+  border-radius: 999px; background: #e0263c; color: #fff; border: 2px solid var(--jx-bg);
+  font: 700 12px/17px var(--jx-font); text-align: center; letter-spacing: 0; box-sizing: border-box;
+  font-variant-numeric: tabular-nums; pointer-events: none;
+}
+@media (min-width: 1000px) {
+  .jx-bell.jx-belldesk {
+    display: inline-flex; position: fixed; top: 12px; right: 68px; z-index: 46;
+    box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  }
+}
+@media (max-width: 999.98px) {
+  .jx-bell.jx-bellbar { display: inline-flex; margin-left: auto; border-radius: 10px; }
+  .jx-bell.jx-bellbar + .jx-dispbtn { margin-left: 0; }
+}
+.jx-light .jx-bell.jx-belldesk { box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+@media (prefers-reduced-motion: no-preference) {
+  .jx-bell[data-new="true"] .jx-bellcount { animation: jx-pop .25s ease-out; }
+}
+.jx-motion-reduce .jx-bell .jx-bellcount { animation: none; }
+@keyframes jx-pop { from { transform: scale(.4); } to { transform: scale(1); } }
+
+/* ---- v140: Leadership Settings, people who have left ---- */
+.jx-rolegone { margin-top: 18px; }
+.jx-rolegone > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: 6px; color: var(--jx-text); }
+.jx-rolegone .jx-sub { margin: 6px 0 10px; }
+
+/* ======================================================================
+   v146 (Jordan, 2026-10-05): look like MRE Office. On a computer: the logo
+   at the top of the menu, and a bar across the top of every page with the
+   search box (the bell and gear sit at its right end). On a phone: a
+   magnifier in the top bar. Search opens a box over the page.
+   ====================================================================== */
+.jx-sidebrand { display: none; }
+.jx-topbar { display: none; }
+.jx-searchbar {
+  display: none; align-items: center; justify-content: center; min-width: 44px; min-height: 44px;
+  background: var(--jx-panel); color: var(--jx-text); border: 1px solid var(--jx-line2); border-radius: 10px; cursor: pointer;
+}
+@media (max-width: 999.98px) {
+  .jx-searchbar { display: inline-flex; margin-left: auto; }
+  .jx-searchbar ~ .jx-bell.jx-bellbar, .jx-searchbar ~ .jx-dispbtn { margin-left: 0; }
+}
+@media (min-width: 1000px) {
+  :root { --jx-toph: 68px; }
+  .jx-shell { padding-top: var(--jx-toph); }
+  .jx-topbar {
+    display: flex; align-items: center; position: fixed; top: 0; left: var(--jx-w); right: 0; z-index: 44;
+    height: var(--jx-toph); padding: 0 140px 0 32px; background: var(--jx-bg); border-bottom: 1px solid var(--jx-line);
+    font-family: var(--jx-font);
+  }
+  .jx-searchtrigger {
+    display: flex; align-items: center; gap: 10px; width: min(560px, 100%); height: 42px; padding: 0 12px;
+    background: var(--jx-panel); color: var(--jx-dim); border: 1px solid var(--jx-line2); border-radius: 10px;
+    font: 400 14px var(--jx-font); cursor: text; text-align: left;
+  }
+  .jx-searchtrigger:hover { border-color: var(--jx-gold-line); color: var(--jx-text); }
+  .jx-searchtrigger:focus-visible { outline: 2px solid var(--jx-gold); outline-offset: 2px; }
+  .jx-searchph { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .jx-kbd { font: 500 11.5px var(--jx-mono); color: var(--jx-dimmer); border: 1px solid var(--jx-line2); border-radius: 6px; padding: 2px 6px; }
+  /* The dashboard's own header sits under the bar, and its logo is now in the menu. */
+  .jx-shell #head { top: var(--jx-toph); }
+  .jx-shell #head .mk, .jx-shell #head .mk + div { display: none; }
+  .jx-sidebrand {
+    display: flex; align-items: center; gap: 10px; margin: 2px 4px 18px; padding: 6px; border-radius: 10px;
+    color: var(--jx-text); text-decoration: none; font-family: var(--jx-font);
+  }
+  .jx-sidebrand:hover { background: var(--jx-panel2); }
+  .jx-sidebrand .jx-mk {
+    width: 34px; height: 34px; border-radius: 9px; background: var(--jx-gold-soft); border: 1px solid var(--jx-gold-line);
+    display: grid; place-items: center; color: var(--jx-gold); font-size: 16px; font-weight: 600; flex: 0 0 auto;
+  }
+  .jx-sidebrand .jx-mk.jx-mkimg { display: block; width: 38px; height: 38px; border-radius: 9px; background: #000; border: 1px solid rgba(255, 255, 255, .18); object-fit: cover; }
+  .jx-sbtext { display: flex; flex-direction: column; line-height: 1.15; }
+  .jx-sbname { font-size: 16px; font-weight: 600; }
+  .jx-sbsub { font: 500 10px var(--jx-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--jx-dimmer); margin-top: 3px; }
+}
+.jx-searchicon { display: block; flex: 0 0 auto; }
+
+/* The search box, over the page. */
+.jx-searchwrap {
+  position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.6); display: flex; justify-content: center;
+  align-items: flex-start; padding: max(10vh, 16px) 16px 16px; font-family: var(--jx-font);
+}
+.jx-searchbox {
+  width: min(640px, 100%); background: var(--jx-panel); color: var(--jx-text); border: 1px solid var(--jx-line2);
+  border-radius: 14px; box-shadow: 0 24px 64px rgba(0,0,0,.55); overflow: hidden; display: flex; flex-direction: column;
+  max-height: min(78vh, 640px);
+}
+.jx-searchrow { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--jx-line); color: var(--jx-dim); }
+/* v180 (scan): the search box had no focus cue at all. */
+.jx-searchrow:focus-within { box-shadow: inset 0 -2px 0 var(--jx-gold); }
+.jx-searchinput {
+  flex: 1; min-width: 0; background: transparent; border: 0; outline: none; color: var(--jx-text);
+  font: 400 16px var(--jx-font); min-height: 32px;
+}
+.jx-searchclose {
+  background: var(--jx-panel2); color: var(--jx-dim); border: 1px solid var(--jx-line2); border-radius: 7px;
+  font: 500 12px var(--jx-mono); padding: 4px 8px; cursor: pointer; min-height: 32px;
+}
+.jx-searchlist { list-style: none; margin: 0; padding: 6px; overflow-y: auto; }
+.jx-searchitem { display: flex; align-items: flex-start; gap: 10px; padding: 9px 10px; border-radius: 9px; cursor: pointer; min-height: 44px; }
+.jx-searchitem[aria-selected="true"] { background: var(--jx-panel2); box-shadow: inset 2px 0 0 var(--jx-gold); }
+.jx-searchkind { width: 16px; color: var(--jx-gold); font-family: var(--jx-mono); text-align: center; padding-top: 1px; }
+.jx-searchtext { display: flex; flex-direction: column; min-width: 0; }
+.jx-searchtitle { font-size: 14.5px; font-weight: 500; overflow-wrap: anywhere; }
+.jx-searchsub { font-size: 12.5px; color: var(--jx-dimmer); margin-top: 2px; }
+.jx-searchnote { margin: 0; padding: 9px 16px; border-top: 1px solid var(--jx-line); font-size: 12.5px; color: var(--jx-dimmer); }
+.jx-light .jx-searchwrap { background: rgba(0,0,0,.35); }
+
+/* ======================================================================
+   v147 (Jordan, 2026-10-05): "Viewing as: Owner / Manager / Member", for
+   leadership and the super admins. On a computer it sits at the right of
+   the top bar; on a phone, at the top of the menu. While Manager or Member
+   is on, a strip across the top of every page says so.
+   ====================================================================== */
+.jx-viewas { display: none; font-family: var(--jx-font); }
+.jx-viewaslabel { font: 500 10.5px var(--jx-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--jx-dimmer); }
+.jx-viewasopts { display: inline-flex; gap: 3px; padding: 3px; background: var(--jx-panel); border: 1px solid var(--jx-line2); border-radius: 10px; }
+.jx-viewasopts button {
+  min-height: 34px; padding: 0 12px; border: 0; border-radius: 7px; background: transparent; color: var(--jx-dim);
+  font: 600 13px var(--jx-font); cursor: pointer;
+}
+.jx-viewasopts button:hover:not(:disabled) { color: var(--jx-text); background: var(--jx-panel2); }
+.jx-viewasopts button[aria-pressed="true"] { color: var(--jx-gold); background: var(--jx-gold-soft); box-shadow: inset 0 0 0 1px var(--jx-gold-line); }
+.jx-viewas[data-on="true"] .jx-viewasopts { border-color: #b7791f; }
+.jx-viewas[data-on="true"] .jx-viewasopts button[aria-pressed="true"] { color: #f6c16b; background: rgba(183,121,31,.18); box-shadow: inset 0 0 0 1px rgba(246,193,107,.45); }
+.jx-viewasopts button:focus-visible { outline: 2px solid var(--jx-gold); outline-offset: 2px; }
+.jx-viewasopts button:disabled { cursor: progress; }
+.jx-previewstrip {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px 14px;
+  padding: 9px 16px; background: #3d2a0c; color: #f6dfb0; border-bottom: 1px solid #7a5418;
+  font: 400 13.5px/1.4 var(--jx-font); text-align: center;
+}
+.jx-previewstrip b { color: #ffd58a; font-weight: 600; }
+.jx-previewstrip button {
+  min-height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #c9933a; background: #f6c16b; color: #1a1205;
+  font: 600 13px var(--jx-font); cursor: pointer;
+}
+.jx-previewstrip button:focus-visible { outline: 2px solid #ffd58a; outline-offset: 2px; }
+.jx-light .jx-previewstrip { background: #fdf0d5; color: #5a3d0a; border-bottom-color: #e3b65f; }
+.jx-light .jx-previewstrip b { color: #7a4e00; }
+.jx-light .jx-viewas[data-on="true"] .jx-viewasopts button[aria-pressed="true"] { color: #7a4e00; background: #fdf0d5; }
+@media (min-width: 1000px) {
+  .jx-viewas-top { display: flex; align-items: center; gap: 10px; margin-left: auto; padding-left: 16px; }
+  .jx-previewstrip { margin-left: var(--jx-w); }
+}
+@media (max-width: 999.98px) {
+  .jx-viewas-side { display: flex; flex-direction: column; gap: 6px; margin: 0 2px 16px; }
+  .jx-viewas-side .jx-viewasopts { display: flex; }
+  .jx-viewas-side .jx-viewasopts button { flex: 1; min-height: 44px; font-size: 14px; }
+}
+
+/* v151: the dashboard's leads-by-stage colours in light mode (validated on
+   white, with the counts printed beside every bar). */
+.jx-light.jx-light { --st-buy: #2a78d6; --st-sell: #eb6834; --st-both: #1baf7a; }
+
+/* ======================================================================
+   v155 (Brandon, 2026-10-06): in light mode the left menu and the bar
+   across the top (and the phone's top bar, with the bell and gear) stay
+   black, like MRE Office. The page itself stays light. They simply wear the
+   dark colours: the same variables as dark mode, set on just these parts.
+   ====================================================================== */
+.jx-light .jx-side, .jx-light .jx-topbar, .jx-light .jx-bar, .jx-light .jx-tabbar,
+.jx-light .jx-geardesk, .jx-light .jx-bell.jx-belldesk {
+  color-scheme: dark;
+  --jx-bg: #000000; --jx-side: #000000; --jx-panel: #060607; --jx-panel2: #111114;
+  --jx-line: #26262c; --jx-line2: #33333b;
+  --jx-text: #f4f3f1; --jx-dim: #a3a09a; --jx-dimmer: #8a8782;
+  --jx-gold: #d8b26a; --jx-gold-soft: rgba(201,168,96,0.13); --jx-gold-line: rgba(216,178,106,0.28);
+}
+.jx-light .jx-topbar .jx-viewas[data-on="true"] .jx-viewasopts button[aria-pressed="true"],
+.jx-light .jx-side .jx-viewas[data-on="true"] .jx-viewasopts button[aria-pressed="true"] { color: #f6c16b; background: rgba(183,121,31,.18); }
+.jx-light .jx-side { box-shadow: none; }
+/* Higher contrast in light mode: the black parts get dark mode's high-contrast greys, and a white focus ring. */
+.jx-light.jx-contrast .jx-side, .jx-light.jx-contrast .jx-topbar, .jx-light.jx-contrast .jx-bar, .jx-light.jx-contrast .jx-tabbar,
+.jx-light.jx-contrast .jx-geardesk, .jx-light.jx-contrast .jx-bell.jx-belldesk {
+  --jx-dim: #e2dfd9; --jx-dimmer: #cdc9c2; --jx-line: #50505c; --jx-line2: #676774; --jx-gold-line: rgba(216,178,106,0.6);
+}
+.jx-light.jx-contrast .jx-side :focus-visible, .jx-light.jx-contrast .jx-topbar :focus-visible, .jx-light.jx-contrast .jx-bar :focus-visible { outline-color: #fff; }
+
+/* v157: J.A.R.V.I.S., Joint Agent Resource & Virtual Intranet System, under
+   the logo (computer) and at the foot of the menu (every screen). */
+.jx-sbfull { display: none; }
+@media (min-width: 1000px) {
+  .jx-sbfull { display: block; margin: -12px 10px 16px; font: 400 11.5px/1.45 var(--jx-font); color: var(--jx-dim); }
+  .jx-sbfull b { color: var(--jx-gold); font-weight: 700; }
+}
+.jx-footname { margin: 0 0 12px; font: 400 11.5px/1.5 var(--jx-font); color: var(--jx-dimmer); }
+
+/* ---------- v173: like an app on a phone ----------
+   A bar along the bottom (Home, Search, Deals, Menu) in thumb reach, black
+   in both themes like the top bar. It sits above the phone's home bar
+   (safe-area), steps aside while typing, and everything that used to sit at
+   the bottom of the screen (Ask Matin AI, the little notices) moves up
+   above it. On a computer none of this shows. */
+.jx-tabbar, .jx-install { display: none; }
+@media (max-width: 999.98px) {
+  :root { --jx-tabh: 62px; }
+  .jx-tabbar {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 47;
+    height: calc(var(--jx-tabh) + env(safe-area-inset-bottom));
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    /* v176: solid black; see-through let a light page's words show behind it. */
+    background: #000; border-top: 1px solid var(--jx-line);
+    font-family: var(--jx-font); box-sizing: border-box;
+  }
+  .jx-tab {
+    position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    min-width: 0; min-height: 48px; margin: 0; padding: 6px 2px 4px; background: none; border: 0;
+    color: var(--jx-dimmer); font: 600 11px/1.1 var(--jx-font); letter-spacing: .02em; text-decoration: none;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none;
+  }
+  .jx-tab svg { display: block; transition: transform .12s ease; }
+  .jx-tab:active svg { transform: scale(.9); }
+  .jx-tab[aria-current="page"], .jx-tab[aria-expanded="true"] { color: var(--jx-gold); }
+  .jx-tab[aria-current="page"]::before {
+    content: ""; position: absolute; top: -1px; left: 28%; right: 28%; height: 2px; border-radius: 0 0 2px 2px; background: var(--jx-gold);
+  }
+  .jx-tab:focus-visible { outline: 2px solid var(--jx-gold); outline-offset: -4px; border-radius: 10px; }
+  .jx-typing .jx-tabbar { display: none; }
+
+  /* Room for the bar under every page, and the bottom-of-screen things above it. */
+  .jx-main { padding-bottom: calc(var(--jx-tabh) + env(safe-area-inset-bottom)); }
+  .jx-main #fab { bottom: calc(var(--jx-tabh) + 14px + env(safe-area-inset-bottom)); }
+  .jx-typing .jx-main #fab { display: none; }
+
+  /* The top bar: the logo on the left, the bell and the gear on the right. */
+  .jx-bar .jx-bell.jx-bellbar { margin-left: auto; }
+  .jx-bar .jx-menubtn, .jx-bar .jx-searchbar { display: none; }
+
+  /* Feel like an app: no grey flash on tap, and no text growing on its own
+     when the phone is turned sideways. */
+  .jx-shell { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  .jx-item, .jx-bell, .jx-dispbtn, .jx-brand { -webkit-tap-highlight-color: transparent; }
+
+  /* "Put Jarvis on your home screen" (app/install-hint.jsx), just above the bar. */
+  .jx-install {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    position: fixed; z-index: 46; left: calc(10px + env(safe-area-inset-left)); right: calc(10px + env(safe-area-inset-right));
+    bottom: calc(var(--jx-tabh) + 10px + env(safe-area-inset-bottom));
+    padding: 12px 14px; border-radius: 14px; box-sizing: border-box;
+    background: #111114; color: #f4f3f1; border: 1px solid rgba(216, 178, 106, .45);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .55); font-family: var(--jx-font);
+  }
+  .jx-installicon { width: 40px; height: 40px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .18); flex-shrink: 0; }
+  .jx-installtext { flex: 1 1 180px; min-width: 0; }
+  .jx-installtitle { margin: 0; font-size: 15px; font-weight: 600; color: #f4f3f1; }
+  .jx-installhow { margin: 2px 0 0; font-size: 13.5px; line-height: 1.4; color: #c9c6c0; }
+  .jx-installhow b { color: #f4f3f1; font-weight: 600; }
+  .jx-installshare { display: inline-flex; vertical-align: -3px; color: #d8b26a; }
+  .jx-installbtns { display: flex; justify-content: flex-end; gap: 8px; flex-basis: 100%; }
+  .jx-installbtns .jx-ghost, .jx-installbtns .jx-btn { min-height: 40px; }
+  /* v176: the card is black in both themes, so its Not now button is too. */
+  .jx-installbtns .jx-ghost { background: #1a1a1f; color: #f4f3f1; border: 1px solid #33333b; }
+  .jx-typing .jx-install { display: none; }
+  /* v174: the card sits where Ask Matin AI's button is; while it shows, the
+     button waits (until Not now, or Jarvis is installed). */
+  .jx-shell:has(.jx-install) .jx-main #fab { display: none; }
+}
+
+/* ---------- v174: the dashboard on a phone (overhaul, phase 2) ----------
+   Less to scroll past before each tab's own sections:
+   - the "where these numbers come from" note shows its first words, with More
+   - the "signed in as" card is just the agent picker (leaders), or nothing
+   - At a Glance sits on Home only (it repeated on every tab)
+   - the row of tabs stays pinned under the top bar, and slides sideways
+   - section titles are smaller, the source badge is a short "Sisu" or
+     "Live", and folded sections are tidy rows you can tap
+   Swiping left or right on the page moves to the next tab (side-menu.jsx).
+   Nothing here changes a computer. */
+@media (max-width: 999.98px) {
+  .jx-main #head { position: static; }
+  .jx-main section { scroll-margin-top: calc(var(--jx-barh) + env(safe-area-inset-top) + 64px); }
+
+  .jx-main .banner { margin-bottom: 14px; padding: 10px 12px; font-size: 13px; }
+  .jx-main .banner .bannerrest { display: none; }
+  .jx-main .banner.open .bannerrest { display: inline; }
+  .jx-main .bannermore {
+    display: inline; background: none; border: 0; padding: 4px 2px; margin: -4px 0; min-height: 32px;
+    color: var(--gold); font: inherit; font-size: 13px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+  }
+
+  .jx-main .agentbar { padding: 8px; margin-bottom: 14px; gap: 6px; }
+  .jx-main .agentbar > label, .jx-main .agentbar > span:not(.demonote) { display: none; }
+  .jx-main .agentbar select { flex: 1 1 100%; min-width: 0; }
+  .jx-main .agentbar .demonote { display: none; }
+  .jx-main .agentbar .demonote.viewing { display: block; flex-basis: 100%; color: var(--warn); }
+  .jx-main #agentbarwrap:not(:has(select)):not(:has(.viewing)) { display: none; }
+
+  .jx-main #page:not([data-tab="home"]) > #summary { display: none; }
+
+  .jx-main #page > .tabbar {
+    position: sticky; top: calc(var(--jx-barh) + env(safe-area-inset-top)); z-index: 20;
+    margin: 0 -18px 18px; padding: 6px 14px; border-radius: 0; border-left: 0; border-right: 0;
+    background: var(--bg); box-shadow: 0 10px 18px -12px rgba(0, 0, 0, .8);
+    scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+  }
+  .jx-main #page > .tabbar button { scroll-snap-align: center; min-height: 40px; padding: 0 14px; font-size: 14.5px; }
+
+  /* v180 (scan): the dashboard's headings only. A room's <main> is also
+     .jx-main, so card titles and group headings in rooms grew to 20px. */
+  .jx-main:not(.jx-room) h2 { font-size: 20px; margin-bottom: 10px; }
+  .jx-main:not(.jx-room) h2 .tag { font-size: 11px; padding: 2px 7px; }
+  .jx-main .tagwhen { display: none; }
+  .jx-main:not(.jx-room) section { margin-bottom: 24px; }
+  .jx-main:not(.jx-room) section.collapsed { margin-bottom: 8px; }
+  .jx-main:not(.jx-room) section.collapsed > h2 {
+    margin-bottom: 0; padding: 0 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  }
+  .jx-main section.collapsed > h2 .secbtn { flex: 1 1 auto; min-height: 52px; }
+  .jx-main section.collapsed > h2 .sectitle { font-size: 16.5px; color: var(--text); }
+  .jx-main .card { padding: 14px; }
+
+  /* Ask Matin AI: a small round button in the corner instead of a wide pill
+     over the numbers. Its name for a screen reader is still "Ask Matin AI". */
+  .jx-main #fab {
+    width: 54px; height: 54px; min-height: 0; padding: 0; border-radius: 50%;
+    font-size: 0; line-height: 0; overflow: hidden;
+  }
+  /* v177 (scan): the bigger-text settings set the button's size too, and
+     they are more specific; the words stay hidden there as well. */
+  .jx-text-large .jx-main #fab, .jx-text-xlarge .jx-main #fab { font-size: 0; }
+  .jx-main #fab::before {
+    content: "\2726 AI"; content: "\2726 AI" / "";
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; line-height: 1; letter-spacing: .02em;
+  }
+}
+@media (min-width: 900px) and (max-width: 999.98px) {
+  .jx-main #page > .tabbar { margin-left: -32px; margin-right: -32px; padding-left: 28px; padding-right: 28px; }
+}
+
+/* ---------- v175: the rooms on a phone (overhaul, phase 3) ----------
+   - A phone number and an email are buttons: Call, Text and Email, one tap
+     each, with an icon. (On a computer they stay plain lines, and there is
+     no Text button.)
+   - Search and the filters stay pinned under the top bar while you scroll a
+     long list, and each row of filters slides sideways instead of wrapping.
+   - Cards, titles and the page header are a little tighter. */
+.jx-ctext { display: none; }
+.jx-chiprow { display: contents; }
+@media (max-width: 999.98px) {
+  .jx-room .jx-contact { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 10px; }
+  .jx-room .jx-contact .jx-badge { flex: 0 0 100%; max-width: max-content; align-self: flex-start; margin: 0 0 2px; }
+  .jx-room .jx-contact a.jx-ccall, .jx-room .jx-contact a.jx-ctext, .jx-room .jx-contact a.jx-cmail {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 44px; max-width: 100%;
+    padding: 0 14px; border-radius: 999px; border: 1px solid var(--jx-line2); background: var(--jx-panel2);
+    color: var(--jx-text); font-size: 14.5px; font-weight: 500; text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .jx-room .jx-contact a.jx-cmail { overflow: hidden; }
+  /* Call and Text first (what a phone is for), then Email. */
+  .jx-room .jx-contact .jx-badge { order: 0; }
+  .jx-room .jx-contact .jx-ccall { order: 1; }
+  .jx-room .jx-contact .jx-ctext { order: 2; }
+  .jx-room .jx-contact .jx-cmail { order: 3; }
+  .jx-room .jx-contact > :not(.jx-badge):not(.jx-ccall):not(.jx-ctext):not(.jx-cmail) { order: 4; }
+  .jx-room .jx-contact a.jx-ccall:active, .jx-room .jx-contact a.jx-ctext:active, .jx-room .jx-contact a.jx-cmail:active { border-color: var(--jx-gold-line); background: var(--jx-gold-soft); }
+  .jx-room .jx-contact a.jx-ccall::before, .jx-room .jx-contact a.jx-ctext::before, .jx-room .jx-contact a.jx-cmail::before {
+    content: ""; flex: 0 0 auto; width: 17px; height: 17px; background: var(--jx-gold);
+    -webkit-mask: var(--jx-ico) center / contain no-repeat; mask: var(--jx-ico) center / contain no-repeat;
+  }
+  .jx-room .jx-contact a.jx-ccall { --jx-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z'/%3E%3C/svg%3E"); }
+  .jx-room .jx-contact a.jx-ctext { display: inline-flex; --jx-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.8-.9L3 21l1.9-5.2A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.5 8.5 0 0 1 21 11.5Z'/%3E%3C/svg%3E"); }
+  .jx-room .jx-contact a.jx-cmail { --jx-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='m3 7 9 6 9-6'/%3E%3C/svg%3E"); }
+
+  /* Search and filters, pinned. */
+  .jx-room .jx-filters {
+    position: sticky; top: calc(var(--jx-barh) + env(safe-area-inset-top)); z-index: 20;
+    margin: 0 -18px 14px; padding: 10px 18px 8px; gap: 8px;
+    background: var(--jx-bg); border-bottom: 1px solid var(--jx-line);
+  }
+  .jx-room .jx-filters .jx-search { flex: 1 1 100%; max-width: none; }
+  .jx-room .jx-filters .jx-chiprow {
+    display: flex; flex: 1 1 100%; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+    margin: 0 -18px; padding: 0 18px 2px; scroll-padding: 0 18px; -webkit-overflow-scrolling: touch;
+  }
+  .jx-room .jx-filters .jx-chiprow::-webkit-scrollbar { display: none; }
+  .jx-room .jx-filters .jx-chips { flex: 0 0 auto; flex-wrap: nowrap; }
+  .jx-room .jx-filters .jx-chips + .jx-chips { padding-left: 6px; border-left: 1px solid var(--jx-line); }
+  .jx-room .jx-filters .jx-chip { flex: 0 0 auto; white-space: nowrap; }
+  .jx-room .jx-filters .jx-count { flex-basis: 100%; margin: 0; font-size: 12.5px; }
+  /* The count only while searching; each group's heading has its own. */
+  .jx-room .jx-filters .jx-search:placeholder-shown ~ .jx-count { display: none; }
+  .jx-room .jx-lgroup { scroll-margin-top: calc(var(--jx-barh) + env(safe-area-inset-top) + 130px); }
+
+  /* Tighter. */
+  .jx-room .jx-roomhead { margin-bottom: 14px; }
+  .jx-room h1 { font-size: 25px; }
+  .jx-room .jx-blurb { font-size: 14.5px; line-height: 1.5; }
+  .jx-room .jx-cards { gap: 10px; }
+  .jx-room .jx-cardi { padding: 14px 14px 12px; }
+  .jx-room .jx-grouphead { margin-top: 22px; }
+}
+
+/* v177 (scan): bigger text zooms the page (1.15 or 1.32), and a pinned row's
+   distance from the top is zoomed with it, leaving a strip of page showing
+   between the top bar and the pinned row. Divided back out here. */
+@media (max-width: 999.98px) {
+  .jx-text-large .jx-main #page > .tabbar, .jx-text-large .jx-room .jx-filters { top: calc((var(--jx-barh) + env(safe-area-inset-top)) / 1.15); }
+  .jx-text-xlarge .jx-main #page > .tabbar, .jx-text-xlarge .jx-room .jx-filters { top: calc((var(--jx-barh) + env(safe-area-inset-top)) / 1.32); }
+}
+
+/* ---- v180 (scan) ---- */
+/* On a computer, a jump to a section landed its heading under the top bar
+   and the sticky header (the 108px allowance was for phones). */
+@media (min-width: 1000px) {
+  .jx-shell .jx-main section { scroll-margin-top: calc(var(--jx-toph) + 100px); }
+}
+/* Keyboard focus on the "View as" list and the Ask Matin AI box (both set
+   outline: none, and their border change was too faint to see). */
+.jx-main .agentbar select:focus-visible, .jx-main .chatform input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+/* The Production Funnel's fixed columns overflowed a 320px phone with
+   Largest text. */
+@media (max-width: 999.98px) {
+  .jx-main .stg { grid-template-columns: minmax(0, 96px) minmax(0, 1fr) auto !important; }
+  /* A notice no longer sits on top of the install card's buttons. */
+  /* v181: by a class on the page (the notice isn't inside the shell). */
+  .jx-installcard #toastbox { bottom: auto; top: calc(var(--jx-barh) + env(safe-area-inset-top) + 10px); }
+}
+/* A button that reads as a link (Leadership Settings: "Bring back"). */
+.jx-linkbtn { background: none; border: 0; padding: 0; min-height: 24px; font: inherit; color: var(--jx-gold); text-decoration: underline; cursor: pointer; }
+.jx-linkbtn:disabled { opacity: .5; cursor: default; }
+
+/* ---- v181 (scan) ---- */
+/* A phone turned sideways: page content keeps clear of the notch and the
+   rounded corners (the bars already did). */
+@media (max-width: 999.98px) {
+  .jx-main #page { padding-left: max(18px, env(safe-area-inset-left)); padding-right: max(18px, env(safe-area-inset-right)); }
+  .jx-roominner { padding-left: max(18px, env(safe-area-inset-left)); padding-right: max(18px, env(safe-area-inset-right)); }
+  .jx-previewstrip { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+}

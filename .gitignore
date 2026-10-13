@@ -1,0 +1,10 @@
+node_modules
+.next
+.env*.local
+.env
+.vercel
+*.log
+
+# Preview images Claude sends into the chat get mirrored into this folder.
+# They are not part of the app.
+/Claude outputs/
