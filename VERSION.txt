@@ -1,3 +1,10 @@
+cik-v3  built 2026-10-13   The real Cash Is King logo
+
+- The "CIK" placeholder is replaced by the Cash Is King crown logo (black on a
+  white square) in the menu, the sign-in page, the Privacy/Terms pages, the
+  browser tab icon and the phone home-screen icons.
+- The source file Brandon supplied is kept as public/brand/cik-logo-original.png.
+
 cik-v2  built 2026-10-13   The app's address is www.cikoffice.com
 
 Brandon chose www.cikoffice.com (not jarvis.cikoffice.com) as the address.
