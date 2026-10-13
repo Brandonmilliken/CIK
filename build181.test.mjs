@@ -39,8 +39,8 @@ ok(!/@/.test(read("lib/role-rank.js")) && /from "\.\.\/lib\/role-rank\.js"/.test
    "the browser's role helpers carry no one's address (the super-admin list stays on the server)");
 {
   const { cleanUrl } = await import("./lib/office-fields.js");
-  ok(cleanUrl("https://jarvis.cikoffice.com//api/admin/run") === "" && cleanUrl("https://jarvis.cikoffice.com/%2Fapi/x") === "" && cleanUrl("https://cikoffice.com/api/admin/run") === "" &&
-     cleanUrl("https://jarvis.cikoffice.com/apiary") !== "" && cleanUrl("https://jarvis.cikoffice.com/office/vendors") !== "",
+  ok(cleanUrl("https://www.cikoffice.com//api/admin/run") === "" && cleanUrl("https://www.cikoffice.com/%2Fapi/x") === "" && cleanUrl("https://cikoffice.com/api/admin/run") === "" &&
+     cleanUrl("https://www.cikoffice.com/apiary") !== "" && cleanUrl("https://www.cikoffice.com/office/vendors") !== "",
      "card links: Jarvis's API refused however it's spelled");
 }
 ok(/!canSeeRoom\(room, user\.role\)\) return json\(\{ error: "not found" \}, 404\)/.test(read("lib/office-api.js")), "a room you can't see answers Not found, even to a write");

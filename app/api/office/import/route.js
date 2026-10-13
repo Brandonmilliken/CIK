@@ -7,11 +7,11 @@
  * string.
  *
  * Why a cross-origin endpoint is acceptable here, and how it is fenced:
- *   - only CIK Office may call it: https://cikoffice.com (or www.). Every
- *     other Origin, and a missing one, is refused
- *   - cikoffice.com and jarvis.cikoffice.com are the same SITE, so the
- *     session cookie (SameSite=Lax) travels with the request. This is why the
- *     new app must be on a cikoffice.com address before the import runs. The
+ *   - only CIK Office (WordPress, at the bare https://cikoffice.com) may call
+ *     it. Every other Origin, and a missing one, is refused
+ *   - cikoffice.com and www.cikoffice.com (this app) are the same SITE, so
+ *     the session cookie (SameSite=Lax) travels with the request. This is why
+ *     the app must be live at www.cikoffice.com before the import runs. The
  *     caller must be signed in here as admin or leadership, exactly as for
  *     any other write
  *   - it only fills a room that is declared as importing AND has never been
@@ -53,7 +53,7 @@ async function eachLimited(items, limit, fn) {
   if (failure) throw failure;
 }
 
-const IMPORT_ORIGINS = ["https://cikoffice.com", "https://www.cikoffice.com"];
+const IMPORT_ORIGINS = ["https://cikoffice.com"];   // www.cikoffice.com is this app itself
 const allowedOrigin = req => {
   const o = req.headers.get("origin");
   return IMPORT_ORIGINS.includes(o) ? o : null;

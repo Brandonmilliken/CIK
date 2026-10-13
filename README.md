@@ -33,14 +33,14 @@ The two apps never share data. Podio belongs here; it never goes into Jarvis.
    Everything else creates itself.
 4. **Google sign-in:** Google Cloud Console → Credentials → create a new OAuth
    client (Web), or add to Jarvis's:
-   - redirect URI `https://jarvis.cikoffice.com/api/auth/callback/google`
-   - JavaScript origin `https://jarvis.cikoffice.com`
+   - redirect URI `https://www.cikoffice.com/api/auth/callback/google`
+   - JavaScript origin `https://www.cikoffice.com`
    - consent screen authorized domain `cikoffice.com` (verify it in Search
      Console under the same Google account first)
 5. **Environment variables:** see `.env.example`. `AUTH_SECRET` must be new.
-6. **Domain:** Vercel → Settings → Domains → add `jarvis.cikoffice.com`, then
-   add the CNAME Vercel shows at GoDaddy (cikoffice.com's DNS). The rest of
-   cikoffice.com stays on WordPress until step 5.
+6. **Domain:** Vercel → Settings → Domains → add `www.cikoffice.com`, then
+   change the `www` record at GoDaddy (cikoffice.com's DNS) to the CNAME
+   Vercel shows. The bare `cikoffice.com` stays on WordPress until step 5.
 7. **Redeploy** (`AUTH_URL` is read at build time).
 
 ## Who can sign in, and roles
@@ -56,11 +56,11 @@ The two apps never share data. Podio belongs here; it never goes into Jarvis.
 ## The one-time import (step 3)
 
 Run `scripts/office-import.browser.js` in a cikoffice.com tab that is signed
-in to WordPress, in a browser that is also signed in to jarvis.cikoffice.com as
+in to WordPress (the bare https://cikoffice.com), in a browser that is also signed in to www.cikoffice.com as
 admin. It reads each room with WordPress's own session and posts it straight
 here. Each room is copied once, all or nothing, and the script prints
-`match: true` when the copy is exact. It only works once the app is on a
-cikoffice.com address (the sign-in cookie has to travel with the request).
+`match: true` when the copy is exact. It only works once the app is live at
+www.cikoffice.com (the sign-in cookie has to travel with the request).
 
 ## Rooms
 

@@ -1,8 +1,9 @@
 /* office-import.browser.js — the one-time copy of CIK Office rooms into the new app.
  *
- * WHERE TO RUN IT: in a cikoffice.com tab, signed in to WordPress as an admin
- * (wp-admin works), in a browser that is ALSO signed in to the new app
- * (jarvis.cikoffice.com) as admin or leadership. Paste it into the page's
+ * WHERE TO RUN IT: in a tab on the bare https://cikoffice.com (WordPress),
+ * signed in to WordPress as an admin (wp-admin works), in a browser that is
+ * ALSO signed in to the new app (https://www.cikoffice.com) as admin or
+ * leadership. Paste it into the page's
  * console (or run it through the Claude browser tool). It reads each room with
  * CIK Office's own WordPress session and posts it straight to the new app. The
  * data never passes through a file or a chat.
@@ -18,7 +19,7 @@
  * offices 2. Every other collection was empty, so there is nothing to copy.
  */
 (async () => {
-  const APP = "https://jarvis.cikoffice.com";
+  const APP = "https://www.cikoffice.com";
   const ROOMS = {
     "new-business":    { collection: "nb_links",   keys: ["name", "url"] },
     "open-houses":     { collection: "oh_links",   keys: ["name", "url"] },
@@ -42,7 +43,7 @@
     return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
   }
 
-  if (!/(^|\.)cikoffice\.com$/.test(location.hostname)) return console.log("Open cikoffice.com, signed in to WordPress, and run this there.");
+  if (location.hostname !== "cikoffice.com") return console.log("Open https://cikoffice.com (no www), signed in to WordPress, and run this there.");
   /* The CIK Office page is password-protected, so its app (and MCC_CONFIG)
      may not be on this page. WordPress hands a signed-in admin a REST nonce
      from admin-ajax either way. */

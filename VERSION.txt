@@ -1,3 +1,13 @@
+cik-v2  built 2026-10-13   The app's address is www.cikoffice.com
+
+Brandon chose www.cikoffice.com (not jarvis.cikoffice.com) as the address.
+- The app is served at https://www.cikoffice.com. WordPress keeps the bare
+  cikoffice.com until the rooms are copied, then that redirects to www.
+- The one-time import is run from the bare https://cikoffice.com (WordPress)
+  and only accepts that origin.
+- README, .env.example, ticket email links and tests follow.
+Tests: 1,329 passed across 41 suites.
+
 cik-v1  built 2026-10-13   First version of CIK Office on Vercel
 
 Copied from Jarvis v181 (Brandonmilliken/Jarvis) and cut down for Cash Is King.

@@ -57,7 +57,7 @@ const stripComments = s => s.replace(/\/\*[\s\S]*?\*\//g, keepNl).replace(/(^|[\
     const t = listTarget(slug);
     ok(t && t.list?.seed?.from === "cikoffice", `${slug}: every room the script copies is one the import fills`);
   }
-  ok(/const APP = "https:\/\/jarvis\.cikoffice\.com";/.test(script) && !/mreoffice/i.test(script), "it posts to the new CIK app, and nothing in it points at MRE's");
+  ok(/const APP = "https:\/\/www\.cikoffice\.com";/.test(script) && !/mreoffice/i.test(script), "it posts to the new CIK app, and nothing in it points at MRE's");
 }
 
 /* ---- 3. no Matin wording on any page --------------------------------------- */
@@ -126,10 +126,10 @@ const stripComments = s => s.replace(/\/\*[\s\S]*?\*\//g, keepNl).replace(/(^|[\
 /* ---- 7. the old addresses ---------------------------------------------------- */
 {
   const rules = await cfg.redirects();
-  ok(rules.length === 2 && JSON.stringify(rules.map(r => r.has?.[0]?.value).sort()) === JSON.stringify(["cikoffice.com", "www.cikoffice.com"]),
-     "exactly the two cikoffice.com hosts are redirected");
-  ok(rules.every(r => r.has.length === 1 && r.has[0].type === "host"), "matched on the host, so jarvis.cikoffice.com itself never is");
-  ok(rules.every(r => r.destination === "https://jarvis.cikoffice.com/" && r.permanent === false), "to the new home page, temporary (307)");
+  ok(rules.length === 1 && JSON.stringify(rules.map(r => r.has?.[0]?.value)) === JSON.stringify(["cikoffice.com"]),
+     "only the bare cikoffice.com is redirected (www is the app)");
+  ok(rules.every(r => r.has.length === 1 && r.has[0].type === "host"), "matched on the host, so www.cikoffice.com (the app) never is");
+  ok(rules.every(r => r.destination === "https://www.cikoffice.com/" && r.permanent === false), "to the new home page, temporary (307)");
   for (const r of rules) {
     const src = r.source, re = new RegExp("^/" + src.slice(src.indexOf("(") + 1, src.lastIndexOf(")")) + "$");
     ok(src.startsWith("/:path(") && re.test("/") && re.test("/wp-admin/") && re.test("/office/vendors"), `${r.has[0].value}: every page is sent over`);

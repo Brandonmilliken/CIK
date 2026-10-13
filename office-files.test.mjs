@@ -63,7 +63,7 @@ const RULES = { types: [PDF], maxBytes: 4 * 1024 * 1024 };
   ok(!isImportSource("https://www.mreoffice.com/wp-content/uploads/2026/08/RMLS-Rules.pdf"), "a file in MRE Office's is not");
   for (const [u, why] of [
     ["http://cikoffice.com/wp-content/uploads/a.pdf", "plain http"],
-    ["https://jarvis.cikoffice.com/wp-content/uploads/a.pdf", "another host"],
+    ["https://www.cikoffice.com/wp-content/uploads/a.pdf", "another host"],
     ["https://cikoffice.com.evil.example/wp-content/uploads/a.pdf", "a look-alike host"],
     ["https://evil.example/?https://cikoffice.com/wp-content/uploads/a.pdf", "a host hidden in a query"],
     ["https://user:pw@cikoffice.com/wp-content/uploads/a.pdf", "a user name"],

@@ -11,10 +11,10 @@ ok([undefined, "", "  ", "http://hooks.zapier.com/x", "https://evil.example.com/
    "anything else is ignored, so a typo can't send tickets elsewhere");
 
 const t = { id: "42", title: "Printer\u0007 is down", category: "Tech", priority: "High", details: "x".repeat(5000), submittedBy: "andy@cashisking.com", submittedName: "Andy Wilcox", createdAt: "2026-10-06T17:00:00.000Z" };
-const pl = ticketPayload(t, "https://jarvis.cikoffice.com");
+const pl = ticketPayload(t, "https://www.cikoffice.com");
 ok(pl.event === "ticket.created" && pl.id === "42" && pl.category === "Tech" && pl.priority === "High" && pl.submittedName === "Andy Wilcox", "the ticket's fields, for the email");
 ok(pl.title === "Printer is down" && pl.details.startsWith("x".repeat(4000)) && /continued in Jarvis/.test(pl.details) && pl.details.length < 4100, "cleaned and capped");
-ok(pl.subject === "New help ticket: Printer is down" && /Andy Wilcox filed a help ticket in Jarvis\./.test(pl.text) && pl.link === "https://jarvis.cikoffice.com/office/support", "a ready-made subject, body and Support Center link");
+ok(pl.subject === "New help ticket: Printer is down" && /Andy Wilcox filed a help ticket in Jarvis\./.test(pl.text) && pl.link === "https://www.cikoffice.com/office/support", "a ready-made subject, body and Support Center link");
 
 let sent = null;
 const r = await notifyNewTicket(t, { url: "https://hooks.zapier.com/hooks/catch/1/2/", fetchImpl: async (u, o) => { sent = { u, o }; return { ok: true, status: 200 }; } });

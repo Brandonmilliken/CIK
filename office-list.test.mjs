@@ -207,8 +207,8 @@ const spec = TS.list.fields;
   ok(fp1 !== await fingerprint(gspec, []), "an empty list has its own fingerprint");
 
   const imp = strip(fs.readFileSync("app/api/office/import/route.js", "utf8"));
-  ok(/const IMPORT_ORIGINS = \["https:\/\/cikoffice\.com", "https:\/\/www\.cikoffice\.com"\];/.test(imp) && /return IMPORT_ORIGINS\.includes\(o\) \? o : null;/.test(imp),
-     "the import accepts exactly CIK Office's two origins, cikoffice.com and www.cikoffice.com");
+  ok(/const IMPORT_ORIGINS = \["https:\/\/cikoffice\.com"\];/.test(imp) && /return IMPORT_ORIGINS\.includes\(o\) \? o : null;/.test(imp),
+     "the import accepts exactly CIK Office's origin, the bare cikoffice.com (www is the app itself)");
   ok(!/Access-Control-Allow-Origin": "\*"/.test(imp) && (imp.match(/Allow-Origin": /g) || []).length === 1 &&
      /function cors\(req\) \{\s*const origin = allowedOrigin\(req\);\s*return origin\s*\?\s*\{\s*"Access-Control-Allow-Origin": origin,/.test(imp),
      "it never answers * and never echoes back whatever origin asked (only one of the two it allows)");

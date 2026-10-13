@@ -1,23 +1,27 @@
-const OLD_HOSTS = ["cikoffice.com", "www.cikoffice.com"];
+/* The app IS www.cikoffice.com (Brandon, 2026-10-13). Only the bare address
+   is "old": it redirects to www once it points at Vercel. */
+const OLD_HOSTS = ["cikoffice.com"];
 
 const nextConfig = {
   poweredByHeader: false,
   /* v180 (scan): a room link warmed by hovering was reused for up to five
      minutes, so a click could open a list several minutes old. */
   experimental: { staleTimes: { static: 30 } },
-  /* The move (step 5 of the plan, from Jarvis v158): once cikoffice.com and
-     www.cikoffice.com point at Vercel, this app answers them and sends every
-     page to https://jarvis.cikoffice.com/. WordPress was one page, so there
-     is nothing deeper to map. Old /wp-content/uploads/ files are left alone
-     (public/ serves any that are kept). Until the DNS moves, this rule never
-     matches, because those hosts still reach WordPress.
+  /* The move (step 5 of the plan, from Jarvis v158). The app is served at
+     https://www.cikoffice.com. WordPress keeps the bare cikoffice.com until
+     the rooms are copied (the one-time import runs from there). Once
+     cikoffice.com also points at Vercel, this sends every page on it to
+     https://www.cikoffice.com/. WordPress was one page, so there is nothing
+     deeper to map. Old /wp-content/uploads/ files are left alone (public/
+     serves any that are kept). Until that DNS change, this rule never
+     matches, because cikoffice.com still reaches WordPress.
      Temporary (307) on purpose: browsers remember a permanent redirect for
      good, which would get in the way if the move ever had to be undone. */
   async redirects() {
     return OLD_HOSTS.map(host => ({
       source: "/:path((?!wp-content/uploads/).*)",
       has: [{ type: "host", value: host }],
-      destination: "https://jarvis.cikoffice.com/",
+      destination: "https://www.cikoffice.com/",
       permanent: false,
     }));
   },

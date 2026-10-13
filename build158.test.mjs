@@ -1,5 +1,5 @@
 /* build158.test.mjs — v158, step 1 of the move, as CIK Office has it: the old
- * addresses (cikoffice.com) go to jarvis.cikoffice.com, old file links are
+ * address (cikoffice.com) goes to www.cikoffice.com, old file links are
  * left alone, and no "still in the old office" links are in the menu. */
 import fs from "node:fs";
 import cfg from "./next.config.mjs";
@@ -9,9 +9,9 @@ const strip = s => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "
 
 /* ---- the redirects ---- */
 const rules = await cfg.redirects();
-ok(rules.length === 2 && rules.map(r => r.has[0].value).sort().join() === "cikoffice.com,www.cikoffice.com", "both old addresses, and only those");
-ok(rules.every(r => r.has.length === 1 && r.has[0].type === "host"), "matched on the host, so jarvis.cikoffice.com itself is never redirected");
-ok(rules.every(r => r.destination === "https://jarvis.cikoffice.com/" && r.permanent === false), "to the Jarvis home page, temporary (307) for now");
+ok(rules.length === 1 && rules.map(r => r.has[0].value).join() === "cikoffice.com", "only the bare address (www is the app)");
+ok(rules.every(r => r.has.length === 1 && r.has[0].type === "host"), "matched on the host, so www.cikoffice.com itself is never redirected");
+ok(rules.every(r => r.destination === "https://www.cikoffice.com/" && r.permanent === false), "to the Jarvis home page, temporary (307) for now");
 const src = rules[0].source, re = new RegExp("^/" + src.slice(src.indexOf("(") + 1, src.lastIndexOf(")")) + "$");
 ok(re.test("/") && re.test("/office/vendors") && re.test("/wp-admin/") && re.test("/wp-login.php"), "every page is sent over");
 ok(!re.test("/wp-content/uploads/2026/08/contacts.vcf") && !re.test("/wp-content/uploads/2025/11/x.pdf"), "old file links are answered where they are (PDFs and the like)");
