@@ -1,3 +1,14 @@
+cik-v4  built 2026-10-14   Ready to move the plain cikoffice.com over
+
+Step 5 of the plan: cikoffice.com (no www) is about to point at this app and
+WordPress is retiring.
+- cikoffice.com now sends people to https://www.cikoffice.com/?from=cikoffice
+  instead of the plain home page. Browsers that once saw WordPress's permanent
+  "www -> cikoffice.com" redirect still remember it for the plain home page;
+  without the marker they would bounce between the two addresses forever
+  ("too many redirects"). The home page removes the marker from the address bar.
+Tests: 1,330 passed across 41 suites.
+
 cik-v3  built 2026-10-13   The real Cash Is King logo
 
 - The "CIK" placeholder is replaced by the Cash Is King crown logo (black on a
@@ -39,4 +50,4 @@ New for CIK:
 - Logo and icons are PLACEHOLDERS ("CIK" lettering) until the real Cash Is
   King logo is added to public/brand/.
 
-Tests: 1,331 passed across 41 suites (cik.test.mjs is the CIK-specific one).
+Tests: 1,330 passed across 41 suites.(cik.test.mjs is the CIK-specific one).

@@ -16,12 +16,20 @@ const nextConfig = {
      serves any that are kept). Until that DNS change, this rule never
      matches, because cikoffice.com still reaches WordPress.
      Temporary (307) on purpose: browsers remember a permanent redirect for
-     good, which would get in the way if the move ever had to be undone. */
+     good, which would get in the way if the move ever had to be undone.
+     cik-v4: it lands on "/?from=cikoffice", not "/". When WordPress owned the
+     site, www.cikoffice.com/ answered with a PERMANENT redirect to the bare
+     address, and browsers that saw it still remember it (Brandon's Chrome
+     did). For them "www.cikoffice.com/" means "go to cikoffice.com/", which
+     now means "go to www.cikoffice.com/" again: a loop, "too many
+     redirects". Browsers remember redirects per exact address, so adding
+     "?from=cikoffice" makes it an address nothing remembers, and the loop
+     can't start. The home page tidies it out of the address bar. */
   async redirects() {
     return OLD_HOSTS.map(host => ({
       source: "/:path((?!wp-content/uploads/).*)",
       has: [{ type: "host", value: host }],
-      destination: "https://www.cikoffice.com/",
+      destination: "https://www.cikoffice.com/?from=cikoffice",
       permanent: false,
     }));
   },

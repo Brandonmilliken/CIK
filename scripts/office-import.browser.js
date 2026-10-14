@@ -14,7 +14,10 @@
  *   409          means the room was already copied, so nothing changed
  *
  * Keep ROOMS in step with the `list.fields` of each room in lib/office-rooms.js
- * (a test checks). CIK Office inventory, 2026-10-13: vendors 244, directory 13,
+ * (a test checks).
+ *
+ * RUN 2026-10-13 (Brandon's OK): all 10 lists copied, 304 rows, every one
+ * match: true. Running it again answers 409 for each and changes nothing. CIK Office inventory, 2026-10-13: vendors 244, directory 13,
  * mls 13, gis 10, values 6, tech_stack 5, resources 4, nb_links 4, oh_links 3,
  * offices 2. Every other collection was empty, so there is nothing to copy.
  */
@@ -27,7 +30,9 @@
     "gis":             { collection: "gis",        keys: ["name", "url", "state", "note"] },
     "vendors":         { collection: "vendors",    keys: ["name", "category", "area", "phone", "email", "website", "description", "preferred"] },
     "company":         { collection: "values",     keys: ["name", "description"] },
-    "company~offices": { collection: "offices",    keys: ["name", "address", "phone"] },
+    // Addresses were two lines in CIK Office; the new field is one line, so
+    // `tidy` folds them the way the server will and the fingerprint still matches.
+    "company~offices": { collection: "offices",    keys: ["name", "address", "phone"], tidy: ["address"] },
     "tech-stack":      { collection: "tech_stack", keys: ["name", "url", "description"] },
     "directory":       { collection: "directory",  keys: ["name", "title", "email", "phone", "secondaryPhone", "group"] },
     "resources":       { collection: "resources",  keys: ["name", "url", "category"] },
@@ -53,7 +58,10 @@
   const base = location.origin + "/wp-json/mcc/v1";
   const report = {};
 
-  for (const [room, { collection, keys }] of Object.entries(ROOMS)) {
+  const CTRL = new RegExp("[\\u0000-\\u001f\\u007f-\\u009f]", "g");
+  const tidyText = v => v.replace(CTRL, " ").replace(/\s+/g, " ").trim();
+
+  for (const [room, { collection, keys, tidy }] of Object.entries(ROOMS)) {
     if (only && !only.includes(room)) continue;
     const res = await fetch(`${base}/${collection}`, { credentials: "include", headers: { "X-WP-Nonce": nonce } });
     if (!res.ok) { report[room] = { error: `CIK Office answered ${res.status}` }; continue; }
@@ -61,7 +69,7 @@
     const all = Array.isArray(body0) ? body0 : (body0.items || []);
     const items = all.map(i => ({
       originId: String(i.id),
-      fields: Object.fromEntries(keys.map(k => [k, typeof i[k] === "string" ? i[k] : ""])),
+      fields: Object.fromEntries(keys.map(k => [k, typeof i[k] === "string" ? (tidy?.includes(k) ? tidyText(i[k]) : i[k]) : ""])),
     }));
     const expected = await fingerprint(keys, items.map(i => i.fields));
 

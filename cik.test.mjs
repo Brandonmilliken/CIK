@@ -129,7 +129,10 @@ const stripComments = s => s.replace(/\/\*[\s\S]*?\*\//g, keepNl).replace(/(^|[\
   ok(rules.length === 1 && JSON.stringify(rules.map(r => r.has?.[0]?.value)) === JSON.stringify(["cikoffice.com"]),
      "only the bare cikoffice.com is redirected (www is the app)");
   ok(rules.every(r => r.has.length === 1 && r.has[0].type === "host"), "matched on the host, so www.cikoffice.com (the app) never is");
-  ok(rules.every(r => r.destination === "https://www.cikoffice.com/" && r.permanent === false), "to the new home page, temporary (307)");
+  ok(rules.every(r => r.destination === "https://www.cikoffice.com/?from=cikoffice" && r.permanent === false), "to the new home page, temporary (307)");
+  /* cik-v4: browsers that remember WordPress's permanent www/ -> bare redirect
+     would loop on plain "/"; an address with a query string is never remembered. */
+  ok(rules.every(r => new URL(r.destination).search !== ""), "never to the plain www.cikoffice.com/ (old browsers loop on it)");
   for (const r of rules) {
     const src = r.source, re = new RegExp("^/" + src.slice(src.indexOf("(") + 1, src.lastIndexOf(")")) + "$");
     ok(src.startsWith("/:path(") && re.test("/") && re.test("/wp-admin/") && re.test("/office/vendors"), `${r.has[0].value}: every page is sent over`);

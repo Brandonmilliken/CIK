@@ -24,6 +24,7 @@ export default function Home({ initialTab, hello, today, company, announcements,
     try {
       const u = new URL(window.location.href);
       if (tab === "home") u.searchParams.delete("tab"); else u.searchParams.set("tab", tab);
+      u.searchParams.delete("from"); /* the old-address redirect's marker (next.config.mjs) */
       window.history.replaceState(null, "", u.pathname + u.search);
     } catch { /* old browser: the address just doesn't follow */ }
   }, [tab]);
