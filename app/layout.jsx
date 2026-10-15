@@ -16,7 +16,6 @@ async function savedTheme() {
 }
 
 export const metadata = {
-  /* v157: J.A.R.V.I.S., Joint Agent Resource & Virtual Intranet System. */
   title: JARVIS_TITLE,
   robots: { index: false, follow: false },
   /* v173: added to an iPhone's home screen, Jarvis opens full screen with

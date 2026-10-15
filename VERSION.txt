@@ -1,3 +1,11 @@
+cik-v7  built 2026-10-15   "Joint Agent Resource & Virtual Intranet System" removed
+
+Brandon (2026-10-15): remove it.
+- Gone from under the logo in the menu and from the sign-in page.
+- The foot of the menu now reads "Jarvis · Cash Is King".
+- The name stays Jarvis; the browser tab still reads "Jarvis · Cash Is King".
+Tests: 1,422 passed across 42 suites.
+
 cik-v6  built 2026-10-15   Deals tab hidden while Podio is on hold
 
 Brandon (2026-10-15): "we are gonna hold on Podio for now", and hide the Deals

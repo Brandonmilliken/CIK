@@ -57,7 +57,7 @@ import { canPreviewRoles, PREVIEW_COOKIE, PREVIEW_ROLES } from "../lib/role-rank
 import { DISPLAY_KEY, DISPLAY_DEFAULTS, readDisplay, applyDisplay, storedTheme, THEME_UNSYNCED_KEY } from "../lib/display-prefs.js";
 import SearchBox, { SearchIcon } from "./search-box.jsx";
 import InstallHint from "./install-hint.jsx";
-import { JARVIS_FULL, JARVIS_WORDS, LOGO, COMPANY } from "../lib/brand.js";
+import { LOGO, COMPANY } from "../lib/brand.js";
 import "./shell.css";
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -738,14 +738,10 @@ export default function SideMenu({ role, realRole, preview, deals = true }) {
           <span aria-hidden="true">✕</span> Close menu
         </button>
         {/* v146: the logo at the top of the menu on a computer, as in MRE Office. */}
-        <a href="/" className="jx-sidebrand" aria-label={`Jarvis, ${JARVIS_FULL}, ${COMPANY}: Home`}>
+        <a href="/" className="jx-sidebrand" aria-label={`Jarvis, ${COMPANY}: Home`}>
           <img className="jx-mk jx-mkimg" src={LOGO} alt="" width="34" height="34" aria-hidden="true" />
           <span className="jx-sbtext"><span className="jx-sbname">Jarvis</span><span className="jx-sbsub">{COMPANY}</span></span>
         </a>
-        {/* v157: what the name stands for, the first letters picked out. */}
-        <p className="jx-sbfull" aria-hidden="true">
-          {JARVIS_WORDS.map(([a, rest], i) => <span key={i}>{i ? " " : ""}<b>{a}</b>{rest}</span>)}
-        </p>
         {viewAs("side")}
         <div className="jx-group">
           <div className="jx-grouplabel">Workspace</div>
@@ -777,7 +773,7 @@ export default function SideMenu({ role, realRole, preview, deals = true }) {
         ))}
 
         <div className="jx-foot">
-          <p className="jx-footname">J.A.R.V.I.S. &middot; {JARVIS_FULL} &middot; {COMPANY}</p>
+          <p className="jx-footname">Jarvis &middot; {COMPANY}</p>
           <button type="button" className="jx-footbtn" aria-controls="jx-display" aria-expanded={dispOpen} onClick={openDisplay}>
             <span aria-hidden="true">⚙</span> Settings
           </button>

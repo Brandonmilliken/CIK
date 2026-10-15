@@ -813,13 +813,8 @@
 }
 .jx-light.jx-contrast .jx-side :focus-visible, .jx-light.jx-contrast .jx-topbar :focus-visible, .jx-light.jx-contrast .jx-bar :focus-visible { outline-color: #fff; }
 
-/* v157: J.A.R.V.I.S., Joint Agent Resource & Virtual Intranet System, under
-   the logo (computer) and at the foot of the menu (every screen). */
-.jx-sbfull { display: none; }
-@media (min-width: 1000px) {
-  .jx-sbfull { display: block; margin: -12px 10px 16px; font: 400 11.5px/1.45 var(--jx-font); color: var(--jx-dim); }
-  .jx-sbfull b { color: var(--jx-gold); font-weight: 700; }
-}
+/* The name at the foot of the menu (every screen). cik-v7: the long
+   "Joint Agent Resource & Virtual Intranet System" is gone (Brandon). */
 .jx-footname { margin: 0 0 12px; font: 400 11.5px/1.5 var(--jx-font); color: var(--jx-dimmer); }
 
 /* ---------- v173: like an app on a phone ----------

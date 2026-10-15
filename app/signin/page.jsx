@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { signIn } from "../../auth.js";
-import { JARVIS_WORDS, LOGO, COMPANY } from "../../lib/brand.js";
+import { LOGO, COMPANY } from "../../lib/brand.js";
 
 export const dynamic = "force-dynamic";
 
@@ -55,12 +55,6 @@ export default async function SignIn({ searchParams }) {
         }} />
 
         <h1 style={{ fontSize: 26, fontWeight: 540, margin: "0 0 6px" }}>Jarvis</h1>
-        {/* v157: what the name stands for. */}
-        <p style={{ color: "#a3a09a", fontSize: 13, lineHeight: 1.5, margin: "0 0 6px" }}>
-          {JARVIS_WORDS.map(([a, rest], i) => (
-            <span key={i}>{i ? " " : ""}<b style={{ color: "#d8b26a", fontWeight: 600 }}>{a}</b>{rest}</span>
-          ))}
-        </p>
         <p style={{ color: "#a3a09a", fontSize: 11, letterSpacing: ".14em",
                     textTransform: "uppercase", margin: "0 0 28px" }}>
           {COMPANY}
