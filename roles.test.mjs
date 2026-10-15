@@ -58,5 +58,21 @@ ok(menuFor("superadmin").flatMap(g => g.rooms).length === menuFor("leadership").
   ok(/onClick=\{\(\) => setRemoving\(p\.email\)\}>Remove/.test(ed) && /Yes, remove/.test(ed) && /send\(\{ email: p\.email, remove: true \}/.test(ed), "the page asks 'Yes, remove' before removing");
   ok(/removed: "Removed"/.test(ed) && /p\.name !== p\.email && <span className="jx-sub"> &middot; \{p\.email\}/.test(ed), "the history says Removed, and the Left list shows each email (so a typo is visible)");
 }
+/* cik-v12 (Brandon, 2026-10-15): a Clear history button, super admins only.
+   Checked against a real Postgres too (harness roles-clear-check). */
+{
+  const lib = fs.readFileSync("./lib/roles.js", "utf8");
+  const fn = lib.slice(lib.indexOf("export async function clearHistory"), lib.indexOf("export async function removePerson"));
+  ok(/if \(!isSuperAdmin\(actor\)\) throw new RoleError\("Only a super admin can clear the history\.", 403\)/.test(fn), "only a super admin, by sign-in email (leadership can't wipe the record of its own changes)");
+  ok(/delete from role_changes returning id/.test(fn) && !/update agents|delete from agents/.test(fn), "it empties the history and touches nobody's role or access");
+  ok(/r\.last_change === "left" \|\| r\.last_change == null/.test(lib) && /if \(last && last\.to_role !== "left"\)/.test(lib), "after a clear, Bring back and Remove still work for people marked as left");
+  const route = fs.readFileSync("./app/api/roles/route.js", "utf8");
+  ok(/b\.clearHistory === true[\s\S]{0,80}clearHistory\(\{ actorEmail: user\.email \}\)/.test(route), "the API takes { clearHistory: true }, actor from the session");
+  ok(route.indexOf("sameOrigin(req)") < route.indexOf("clearHistory({") && route.indexOf("user.demo") < route.indexOf("clearHistory({"), "after the same-site and demo-mode checks");
+  const ed = fs.readFileSync("./app/roles-editor.jsx", "utf8");
+  ok(/const iAmSuper = \(superAdmins \|\| \[\]\)\.includes\(String\(me \|\| ""\)\.toLowerCase\(\)\);/.test(ed) && /\{iAmSuper && changes\.length > 0 && \(/.test(ed),
+     "the button shows only to a super admin, and only when there's history");
+  ok(/Clear history<\/button>/.test(ed) && /Yes, clear it/.test(ed) && /send\(\{ clearHistory: true \}/.test(ed), "and asks 'Yes, clear it' first");
+}
 console.log(`\nroles: ${p} passed, ${f} failed`);
 if (f) process.exit(1);

@@ -24,6 +24,10 @@ export default function RolesEditor({ initialPeople, initialChanges, me, superAd
   const [show, setShow] = useState("all");
   const [pending, setPending] = useState(null);      // { email, name, from, to }
   const [removing, setRemoving] = useState(null);    // cik-v11: email waiting for "Yes, remove"
+  const [clearing, setClearing] = useState(false);   // cik-v12: waiting for "Yes, clear it"
+  /* cik-v12: only a super admin gets the Clear history button (the server
+     checks the same thing, by the signed-in email). */
+  const iAmSuper = (superAdmins || []).includes(String(me || "").toLowerCase());
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [adding, setAdding] = useState(false);
@@ -237,6 +241,19 @@ export default function RolesEditor({ initialPeople, initialChanges, me, superAd
 
       <section className="jx-part" aria-labelledby="jx-rolelog">
         <h2 className="jx-parthead" id="jx-rolelog">Recent changes</h2>
+        {iAmSuper && changes.length > 0 && (
+          <p className="jx-sub" style={{ margin: "0 0 10px" }}>
+            {!clearing ? (
+              <button type="button" className="jx-linkbtn" disabled={busy} onClick={() => setClearing(true)}>Clear history</button>
+            ) : (
+              <>Clear the whole history? Nobody&rsquo;s role or access changes.{" "}
+                <button type="button" className="jx-linkbtn" disabled={busy}
+                  onClick={async () => { if (await send({ clearHistory: true }, "History cleared.")) setClearing(false); }}>
+                  {busy ? "Clearing…" : "Yes, clear it"}</button>
+                {" "}&middot; <button type="button" className="jx-linkbtn" disabled={busy} onClick={() => setClearing(false)}>Cancel</button></>
+            )}
+          </p>
+        )}
         {changes.length === 0 ? <div className="jx-card"><p>No changes yet.</p></div> : (
           <ul className="jx-acklist jx-card">
             {changes.map(c => (

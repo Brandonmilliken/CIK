@@ -1,3 +1,14 @@
+cik-v12  built 2026-10-15   Clear history (super admins only)
+
+Brandon (2026-10-15): a button to clear Leadership Settings' Recent changes,
+for super admins only.
+- "Clear history" above Recent changes, shown only to Brandon and Jordan Matin
+  (the super admins), and only when there is history. It asks "Yes, clear it"
+  first. The server checks the signed-in email too, so leadership can't use it.
+- Nobody's role or access changes. Bring back and Remove keep working for
+  people marked as left after the history is cleared.
+Tests: 1,443 passed across 42 suites.
+
 cik-v11  built 2026-10-15   Remove someone added by mistake
 
 Brandon (2026-10-15): remove the "Jordan Matin" entry marked as left; it was
