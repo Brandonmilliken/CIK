@@ -16,6 +16,7 @@ import { listItems } from "../lib/office-store.js";
 import { acksFor, splitAnnouncements } from "../lib/announcement-acks.js";
 import { COMPANY } from "../lib/brand.js";
 import { atLeast } from "../lib/authz.js";
+import { podioConfig } from "../lib/podio.js";
 import SideMenu from "./side-menu.jsx";
 import Home from "./home.jsx";
 
@@ -52,13 +53,17 @@ export default async function Page({ searchParams }) {
     console.error("home: announcements failed to load:", e);
   }
 
-  const tab = String((await searchParams)?.tab || "") === "deals" ? "deals" : "home";
+  /* cik-v6 (Brandon, 2026-10-15: Podio on hold): the Deals tab only shows once
+     Podio is connected (PODIO_* set in Vercel). Until then a /?tab=deals link
+     opens Home, and staff never see the "waiting for its Podio key" note. */
+  const dealsOn = podioConfig().ok;
+  const tab = dealsOn && String((await searchParams)?.tab || "") === "deals" ? "deals" : "home";
   const first = String(user.displayName || "").split(/\s+/)[0] || "";
   const today = new Date().toLocaleDateString("en-US", { timeZone: "America/Los_Angeles", weekday: "long", month: "long", day: "numeric" });
 
   return (
     <div className="jx-shell">
-      <SideMenu role={user.role} realRole={user.realRole} preview={user.preview} />
+      <SideMenu role={user.role} realRole={user.realRole} preview={user.preview} deals={dealsOn} />
       <main className="jx-main jx-room" id="jx-content" tabIndex={-1}>
         <div className="jx-roominner jx-wide">
           <Home
@@ -70,6 +75,7 @@ export default async function Page({ searchParams }) {
             acknowledged={ann.acknowledged.map(a => ({ id: a.id, title: a.title, message: a.message, link: a.link }))}
             quick={QUICK}
             admin={atLeast(user.role, "admin")}
+            deals={dealsOn}
           />
         </div>
       </main>

@@ -14,6 +14,7 @@ import { currentUser } from "../../../lib/session.js";
 import { roomBySlug, partsOf, canSeeRoom, canEditRoom, CIK_OFFICE_URL } from "../../../lib/office-rooms.js";
 import { listItems, roomState } from "../../../lib/office-store.js";
 import SideMenu from "../../side-menu.jsx";
+import { podioConfig } from "../../../lib/podio.js";
 import OfficeList from "../../office-list.jsx";
 import { TicketForm, MyTickets, SupportCenter } from "../../tickets.jsx";
 import MlsCoverage from "../../mls-coverage.jsx";
@@ -90,7 +91,7 @@ export default async function RoomPage({ params, searchParams }) {
     if (body === null) notFound();
     return (
       <div className="jx-shell">
-        <SideMenu role={user.role} realRole={user.realRole} preview={user.preview} />
+        <SideMenu role={user.role} realRole={user.realRole} preview={user.preview} deals={podioConfig().ok} />
         <main className="jx-main jx-room" id="jx-content" tabIndex={-1}>
           <div className="jx-roominner jx-wide">{body}</div>
         </main>
@@ -145,7 +146,7 @@ export default async function RoomPage({ params, searchParams }) {
     }
     return (
       <div className="jx-shell">
-        <SideMenu role={user.role} realRole={user.realRole} preview={user.preview} />
+        <SideMenu role={user.role} realRole={user.realRole} preview={user.preview} deals={podioConfig().ok} />
         <main className="jx-main jx-room" id="jx-content" tabIndex={-1}>
           <div className="jx-roominner jx-wide">
             {items !== null && state && !state.imported ? (

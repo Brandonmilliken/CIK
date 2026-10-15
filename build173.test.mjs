@@ -53,7 +53,7 @@ ok(/min-height: 48px/.test(v173), "buttons big enough for a thumb");
 /* ---- the home page (CIK: it stands where the dashboard was) ---- */
 const home = read("app/home.jsx"), page = read("app/page.jsx");
 ok(/String\(\(await searchParams\)\?\.tab \|\| ""\) === "deals" \? "deals" : "home"/.test(page) && /history\.replaceState/.test(home), "the home page opens on ?tab=, then keeps the address in step");
-ok(/window\.addEventListener\("jarvis:tab", on\)/.test(home) && /e\.detail === "home" \|\| e\.detail === "deals"/.test(home), "and switches when asked, only to a tab it has");
+ok(/window\.addEventListener\("jarvis:tab", on\)/.test(home) && /e\.detail === "home" \|\| \(deals && e\.detail === "deals"\)/.test(home), "and switches when asked, only to a tab it has (cik-v6: Deals only once Podio is connected)");
 ok(/new CustomEvent\("jarvis:tabchanged", \{ detail: tab \}\)/.test(home), "and says which tab it's on");
 
 console.log(`\nbuild173: ${p} passed, ${f} failed`);

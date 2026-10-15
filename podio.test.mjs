@@ -167,6 +167,20 @@ ok(personFor("Mike Oltersdorf", ["Carrie", "Mike"]) === "Mike" && personFor("bra
   ok(!/last_error\b[^?]*\?\s*status\.last_error/.test(route) && /didn't finish/.test(route), "a failed sync shows a plain message, not the raw error");
   const home = fs.readFileSync("app/home.jsx", "utf8");
   ok(/<Deals admin=\{admin\} \/>/.test(home) && !/coming next/.test(home), "the Deals tab is the dashboard now");
+  /* cik-v6 (Brandon, 2026-10-15: Podio on hold): no Deals tab until Podio is connected. */
+  const page = fs.readFileSync("app/page.jsx", "utf8");
+  ok(/const dealsOn = podioConfig\(\)\.ok;/.test(page) && /dealsOn && String\(\(await searchParams\)\?\.tab/.test(page),
+     "the home page knows whether Podio is connected, and /?tab=deals opens Home when it isn't");
+  ok(/deals=\{dealsOn\}[\s\S]*deals=\{dealsOn\}/.test(page), "and tells both the menu and the page");
+  ok(/\{deals && \(\s*<div className="jx-chips jx-hometabs tabbar"/.test(home) && /\{deals && tab === "deals" && <Deals/.test(home),
+     "without Podio there are no Home / Deals tabs and no dashboard");
+  ok(/useState\(deals && initialTab === "deals"/.test(home) && /\(deals && e\.detail === "deals"\)/.test(home), "and nothing can switch to Deals");
+  const menu = fs.readFileSync("app/side-menu.jsx", "utf8");
+  ok(/\{deals && <a href="\/\?tab=deals"/.test(menu) && /data-tabs=\{deals \? 4 : 3\}/.test(menu), "the phone's bottom bar drops Deals (Home, Search, Menu)");
+  ok(/\.jx-tabbar\[data-tabs="3"\] \{ grid-template-columns: repeat\(3/.test(fs.readFileSync("app/shell.css", "utf8")), "and spreads its three buttons across");
+  const room = fs.readFileSync("app/office/[room]/page.jsx", "utf8");
+  ok((room.match(/deals=\{podioConfig\(\)\.ok\}/g) || []).length === 2, "rooms pass it to the menu too");
+  ok(!/from ["'].*\/db\.js["']/.test(fs.readFileSync("lib/podio.js", "utf8")), "lib/podio.js (where the check lives) needs no database");
   const ex = fs.readFileSync(".env.example", "utf8");
   ok(/PODIO_CLIENT_ID=/.test(ex) && /PODIO_CLIENT_SECRET=/.test(ex) && /PODIO_APP_TOKENS=/.test(ex), ".env.example lists the three Podio settings");
 }

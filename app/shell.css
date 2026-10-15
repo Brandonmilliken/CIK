@@ -840,6 +840,7 @@
     background: #000; border-top: 1px solid var(--jx-line);
     font-family: var(--jx-font); box-sizing: border-box;
   }
+  .jx-tabbar[data-tabs="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .jx-tab {
     position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
     min-width: 0; min-height: 48px; margin: 0; padding: 6px 2px 4px; background: none; border: 0;

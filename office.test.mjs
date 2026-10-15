@@ -106,7 +106,7 @@ const strip = s => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "
      "the menu sizes its own boxes, so it is the same width beside the home page and on a room page");
 
   const page = strip(fs.readFileSync("./app/page.jsx", "utf8"));
-  ok(/<SideMenu role=\{user\.role\} realRole=\{user\.realRole\} preview=\{user\.preview\} \/>/.test(page), "the home page renders the side menu");
+  ok(/<SideMenu role=\{user\.role\} realRole=\{user\.realRole\} preview=\{user\.preview\} deals=\{dealsOn\} \/>/.test(page), "the home page renders the side menu");
   ok(/className="jx-main jx-room"/.test(page), "and sits in the main column beside it");
   ok(/\{link\("\/", "Dashboard"\)\}/.test(menu), "the menu's first link goes home");
 }

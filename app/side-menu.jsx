@@ -155,7 +155,7 @@ function pageSections() {
   }).filter(x => x.t);
 }
 
-export default function SideMenu({ role, realRole, preview }) {
+export default function SideMenu({ role, realRole, preview, deals = true }) {
   const [open, setOpen] = useState(false);
   const [dispOpen, setDispOpen] = useState(false);
   /* v146: Jarvis search (app/search-box.jsx). */
@@ -696,7 +696,9 @@ export default function SideMenu({ role, realRole, preview }) {
       <SearchBox open={searchOpen} onClose={closeSearch} role={role} onDashboard={onDashboard} sections={sections} />
 
       {/* v173: the phone's bottom bar. */}
-      <nav className="jx-tabbar" aria-label="Quick links">
+      {/* cik-v6: Deals is left out while the Podio dashboard has no Podio key
+          (Brandon, 2026-10-15: Podio on hold), so the bar is Home, Search, Menu. */}
+      <nav className="jx-tabbar" aria-label="Quick links" data-tabs={deals ? 4 : 3}>
         <a href="/" className="jx-tab" onClick={toDashTab("home")}
            aria-current={onDashboard && (dashTab === "home" || !dashTab) && !open && !searchOpen ? "page" : undefined}>
           <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
@@ -711,13 +713,13 @@ export default function SideMenu({ role, realRole, preview }) {
           </svg>
           <span>Search</span>
         </button>
-        <a href="/?tab=deals" className="jx-tab" onClick={toDashTab("deals")}
+        {deals && <a href="/?tab=deals" className="jx-tab" onClick={toDashTab("deals")}
            aria-current={onDashboard && dashTab === "deals" && !open && !searchOpen ? "page" : undefined}>
           <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
             <path d="M4 8.5h16a1 1 0 0 1 1 1V19a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5a1 1 0 0 1 1-1Z M9 8.5V6.2A1.2 1.2 0 0 1 10.2 5h3.6A1.2 1.2 0 0 1 15 6.2v2.3 M3 13.5h18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
           </svg>
           <span>Deals</span>
-        </a>
+        </a>}
         <button type="button" className="jx-tab" ref={btnRef} aria-controls="jx-side" aria-expanded={open}
                 onClick={() => setOpen(o => !o)}>
           <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">

@@ -2,14 +2,15 @@
 /* The home page's moving parts: the Home / Deals tabs (the phone's bottom bar
  * switches them through the same "jarvis:tab" event Jarvis's dashboard
  * listens for), and "Got it" on each announcement. cik-v5: the Deals tab is
- * the Podio agent dashboard (app/deals.jsx).
+ * the Podio agent dashboard (app/deals.jsx). cik-v6: the tab is hidden
+ * until Podio is connected (the `deals` prop, from app/page.jsx).
  */
 import { useEffect, useState } from "react";
 import { cleanUrl } from "../lib/office-fields.js";
 import Deals from "./deals.jsx";
 
-export default function Home({ initialTab, hello, today, company, announcements, acknowledged, quick, admin = false }) {
-  const [tab, setTab] = useState(initialTab === "deals" ? "deals" : "home");
+export default function Home({ initialTab, hello, today, company, announcements, acknowledged, quick, admin = false, deals = true }) {
+  const [tab, setTab] = useState(deals && initialTab === "deals" ? "deals" : "home");
   const [open, setOpen] = useState(announcements);
   const [busy, setBusy] = useState(null);
   const [notice, setNotice] = useState("");
@@ -17,7 +18,7 @@ export default function Home({ initialTab, hello, today, company, announcements,
   /* The bottom bar asks for a tab; this page answers, and says which one is
      showing so the bar can light it. */
   useEffect(() => {
-    const on = e => { if (e.detail === "home" || e.detail === "deals") setTab(e.detail); };
+    const on = e => { if (e.detail === "home" || (deals && e.detail === "deals")) setTab(e.detail); };
     window.addEventListener("jarvis:tab", on);
     return () => window.removeEventListener("jarvis:tab", on);
   }, []);
@@ -52,12 +53,15 @@ export default function Home({ initialTab, hello, today, company, announcements,
       <p className="jx-kicker">{company} &middot; {today}</p>
       <h1>{hello}</h1>
 
-      <div className="jx-chips jx-hometabs tabbar" role="tablist" aria-label="Home sections" style={{ margin: "0 0 22px" }}>
-        {[["home", "Home"], ["deals", "Deals"]].map(([v, label]) => (
-          <button key={v} type="button" role="tab" className="jx-chip" data-v={v}
-                  aria-selected={tab === v} aria-pressed={tab === v} onClick={() => setTab(v)}>{label}</button>
-        ))}
-      </div>
+      {/* cik-v6: with the Podio dashboard on hold there is only Home, so no tabs. */}
+      {deals && (
+        <div className="jx-chips jx-hometabs tabbar" role="tablist" aria-label="Home sections" style={{ margin: "0 0 22px" }}>
+          {[["home", "Home"], ["deals", "Deals"]].map(([v, label]) => (
+            <button key={v} type="button" role="tab" className="jx-chip" data-v={v}
+                    aria-selected={tab === v} aria-pressed={tab === v} onClick={() => setTab(v)}>{label}</button>
+          ))}
+        </div>
+      )}
 
       <div className="jx-live" role="status" aria-live="polite">{notice}</div>
 
@@ -107,7 +111,7 @@ export default function Home({ initialTab, hello, today, company, announcements,
         </>
       )}
 
-      {tab === "deals" && <Deals admin={admin} />}
+      {deals && tab === "deals" && <Deals admin={admin} />}
     </div>
   );
 }

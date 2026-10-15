@@ -29,7 +29,7 @@ ok(/const preview = previewRoleFor\(user\.role, asked\);\s*return \{ \.\.\.user,
 ok((session.match(/return withPreview\(\{/g) || []).length === 2, "for Google sign-in and demo mode alike");
 for (const n of ["app/page.jsx", "app/office/[room]/page.jsx"]) {
   const src = read(n);
-  ok(!/<SideMenu role=\{user\.role\} \/>/.test(src) && /<SideMenu role=\{user\.role\} realRole=\{user\.realRole\} preview=\{user\.preview\} \/>/.test(src), `${n}: the menu gets the real role and the preview`);
+  ok(!/<SideMenu role=\{user\.role\} \/>/.test(src) && /<SideMenu role=\{user\.role\} realRole=\{user\.realRole\} preview=\{user\.preview\}( deals=\{[^}]+\})? \/>/.test(src), `${n}: the menu gets the real role and the preview`);
 }
 const menu = fs.readFileSync("app/side-menu.jsx", "utf8");
 ok(/const canPreview = canPreviewRoles\(realRole \|\| role\);/.test(menu), "the switch shows by what you really are, so it never disappears mid-preview");
