@@ -1,3 +1,14 @@
+cik-v11  built 2026-10-15   Remove someone added by mistake
+
+Brandon (2026-10-15): remove the "Jordan Matin" entry marked as left; it was
+a typo (jmain@matinrealestate.com, not jmatin@).
+- Leadership Settings → Left the company now shows each person's email, and
+  has Remove next to Bring back. Remove asks "Yes, remove" first. Only someone
+  already marked as left (and added by hand) can be removed, so nobody
+  vanishes in one click; super admins and yourself can't be.
+- The history keeps its lines and adds "Left the company → Removed".
+Tests: 1,436 passed across 42 suites.
+
 cik-v10  built 2026-10-15   Jordan Matin is a super admin
 
 Brandon (2026-10-15): make jmatin@matinrealestate.com a super admin.

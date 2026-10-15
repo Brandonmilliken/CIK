@@ -37,10 +37,26 @@ ok(menuFor("superadmin").flatMap(g => g.rooms).length === menuFor("leadership").
   ok(/const user = await currentUser\(\)/.test(r) && /if \(!sameOrigin\(req\)\)/.test(r) && /atLeast\(user\.role, "leadership"\)/.test(r), "the roles door: signed in, from Jarvis, leadership");
   ok(/actorEmail: user\.email/.test(r) && !/b\.actor/.test(r), "who made the change always comes from the session");
   const lib = strip(fs.readFileSync("./lib/roles.js", "utf8"));
-  ok(/select role, \(to_jsonb\(agents\) ->> 'left_at'\) as left_at from agents where lower\(email\) = \$\{actor\}/.test(lib) && (lib.match(/await actorRole\(actor\)/g) || []).length === 2, "the changer's own role is checked fresh from the database every time (v181: and someone marked as left counts as an agent)");
+  ok(/select role, \(to_jsonb\(agents\) ->> 'left_at'\) as left_at from agents where lower\(email\) = \$\{actor\}/.test(lib) && (lib.match(/await actorRole\(actor\)/g) || []).length === 3, "the changer's own role is checked fresh from the database every time (v181: and someone marked as left counts as an agent; cik-v11: for Remove too)");
   ok(/insert into role_changes/.test(lib), "every change is recorded");
   const ed = fs.readFileSync("./app/roles-editor.jsx", "utf8");
   ok(/Yes, change it/.test(ed) && /that&rsquo;s you/.test(ed) && /can&rsquo;t be changed here, by anyone/.test(ed), "the page confirms each change, locks your own row and says the super admin is fixed");
+}
+/* cik-v11 (Brandon, 2026-10-15): remove someone added by mistake (a typo'd
+   address). Checked against a real Postgres too (harness roles-remove-check). */
+{
+  const lib = fs.readFileSync("./lib/roles.js", "utf8");
+  const fn = lib.slice(lib.indexOf("export async function removePerson"));
+  ok(/atLeast\(myRole, "leadership"\)/.test(fn) && /isSuperAdmin\(who\)/.test(fn) && /who === actor/.test(fn), "only leadership removes, never a super admin, never yourself");
+  ok(/if \(!found\.left_at\) throw new RoleError\("Mark them as having left first/.test(fn), "only someone already marked as left (two steps, so nobody vanishes in one click)");
+  ok(/sisu_agent_id != null\) throw/.test(fn) && /delete from agents where lower\(email\) = \$\{who\} and left_at is not null and sisu_agent_id is null/.test(fn), "and only a row added by hand");
+  ok(/insert into role_changes[\s\S]{0,120}'left', 'removed'/.test(fn), "the history records the removal");
+  const route = fs.readFileSync("./app/api/roles/route.js", "utf8");
+  ok(/b\.remove === true[\s\S]{0,120}removePerson\(\{ actorEmail: user\.email, email: b\.email \}\)/.test(route), "the API takes { email, remove: true }, actor from the session");
+  ok(route.indexOf("sameOrigin(req)") < route.indexOf("removePerson({") && route.indexOf("user.demo") < route.indexOf("removePerson({"), "after the same-site and demo-mode checks");
+  const ed = fs.readFileSync("./app/roles-editor.jsx", "utf8");
+  ok(/onClick=\{\(\) => setRemoving\(p\.email\)\}>Remove/.test(ed) && /Yes, remove/.test(ed) && /send\(\{ email: p\.email, remove: true \}/.test(ed), "the page asks 'Yes, remove' before removing");
+  ok(/removed: "Removed"/.test(ed) && /p\.name !== p\.email && <span className="jx-sub"> &middot; \{p\.email\}/.test(ed), "the history says Removed, and the Left list shows each email (so a typo is visible)");
 }
 console.log(`\nroles: ${p} passed, ${f} failed`);
 if (f) process.exit(1);

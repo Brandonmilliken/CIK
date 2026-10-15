@@ -5,13 +5,14 @@
  *   POST { email, role }                  leadership, from Jarvis itself: change one person's role
  *   POST { email, role, add: true, firstName, lastName }   the same, adding someone not on the roster
  *   POST { email, left: true | false }    v180: mark someone added by hand as left, or bring them back
+ *   POST { email, remove: true }          cik-v11: take someone marked as left off the list
  *
  * Who is making the change always comes from the signed-in session.
  */
 import { currentUser } from "../../../lib/session.js";
 import { atLeast } from "../../../lib/authz.js";
 import { sameOrigin } from "../../../lib/office-api.js";
-import { listPeople, recentChanges, setRole, setLeft, RoleError } from "../../../lib/roles.js";
+import { listPeople, recentChanges, setRole, setLeft, removePerson, RoleError } from "../../../lib/roles.js";
 
 export const dynamic = "force-dynamic";
 const NOSTORE = { "Cache-Control": "private, no-store" };
@@ -44,6 +45,15 @@ export async function POST(req) {
      (those changes outlived it). */
   if (user.demo) return json({ error: "Role changes are off in demo mode." }, 403);
   const b = await body(req);
+  if (b && typeof b.email === "string" && b.remove === true) {
+    try {
+      const out = await removePerson({ actorEmail: user.email, email: b.email });
+      return json({ ok: true, ...out, people: await listPeople(), changes: await recentChanges() });
+    } catch (e) {
+      if (e instanceof RoleError) return json({ error: e.message }, e.status);
+      return json({ error: "That didn't go through. Nothing was changed." }, 503);
+    }
+  }
   if (b && typeof b.email === "string" && typeof b.left === "boolean") {
     try {
       const out = await setLeft({ actorEmail: user.email, email: b.email, left: b.left });

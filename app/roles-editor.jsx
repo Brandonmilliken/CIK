@@ -4,7 +4,7 @@
  * on the server (lib/roles.js). */
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const ROLE_LABEL = { agent: "Agent", admin: "Admin", leadership: "Leadership", superadmin: "Super admin", left: "Left the company" };
+const ROLE_LABEL = { agent: "Agent", admin: "Admin", leadership: "Leadership", superadmin: "Super admin", left: "Left the company", removed: "Removed" };
 const CHOICES = ["agent", "admin", "leadership"];   // v135: broker retired
 const WHAT = {
   agent: "Sees only their own numbers.",
@@ -23,6 +23,7 @@ export default function RolesEditor({ initialPeople, initialChanges, me, superAd
   const [q, setQ] = useState("");
   const [show, setShow] = useState("all");
   const [pending, setPending] = useState(null);      // { email, name, from, to }
+  const [removing, setRemoving] = useState(null);    // cik-v11: email waiting for "Yes, remove"
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [adding, setAdding] = useState(false);
@@ -210,14 +211,23 @@ export default function RolesEditor({ initialPeople, initialChanges, me, superAd
       {gone.length > 0 && (
         <details className="jx-card jx-rolegone">
           <summary><strong>Left the company</strong> &middot; {gone.length}</summary>
-          <p className="jx-sub">Marked as having left, so they can&rsquo;t sign in and are off the announcement record. Anyone here can be brought back.</p>
+          <p className="jx-sub">Marked as having left, so they can&rsquo;t sign in and are off the announcement record. Anyone here can be brought back, or removed from the list (for example, an address added with a typo).</p>
           <ul className="jx-acklist">
             {gone.map(p => (
-              <li key={p.email}><span>{p.name}</span>
+              <li key={p.email}><span>{p.name}{p.name !== p.email && <span className="jx-sub"> &middot; {p.email}</span>}</span>
                 <span className="jx-sub">since {when(p.left)}
-                  {p.staff && (
+                  {p.staff && removing !== p.email && (
                     <> &middot; <button type="button" className="jx-linkbtn" disabled={busy}
-                      onClick={() => send({ email: p.email, left: false }, `${p.name} is back. They can sign in again.`)}>Bring back<span className="jx-sr"> {p.name}</span></button></>
+                      onClick={() => send({ email: p.email, left: false }, `${p.name} is back. They can sign in again.`)}>Bring back<span className="jx-sr"> {p.name}</span></button>
+                    {" "}&middot; <button type="button" className="jx-linkbtn" disabled={busy}
+                      onClick={() => setRemoving(p.email)}>Remove<span className="jx-sr"> {p.name}</span></button></>
+                  )}
+                  {p.staff && removing === p.email && (
+                    <> &middot; Remove {p.email} from the list?{" "}
+                    <button type="button" className="jx-linkbtn" disabled={busy}
+                      onClick={async () => { if (await send({ email: p.email, remove: true }, `${p.email} is off the list.`)) setRemoving(null); }}>
+                      {busy ? "Removing…" : "Yes, remove"}</button>
+                    {" "}&middot; <button type="button" className="jx-linkbtn" disabled={busy} onClick={() => setRemoving(null)}>Cancel</button></>
                   )}
                 </span></li>
             ))}
