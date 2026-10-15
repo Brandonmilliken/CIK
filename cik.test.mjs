@@ -80,7 +80,13 @@ const stripComments = s => s.replace(/\/\*[\s\S]*?\*\//g, keepNl).replace(/(^|[\
   const BAD = /\bMatin\b|MRE Office|mreoffice|\bSisu\b|\bSierra\b/i;
   const hits = [];
   for (const file of files) {
-    stripComments(fs.readFileSync(file, "utf8")).split("\n").forEach((line, i) => { if (BAD.test(line)) hits.push(`${file}:${i + 1}: ${line.trim().slice(0, 100)}`); });
+    /* cik-v8: Matin Real Estate may now sign in, and the sign-in and privacy
+       pages say so. Those two sentences are the only Matin wording allowed. */
+    const ALLOWED = file === "app/signin/page.jsx" || file === "app/privacy/page.jsx"
+      ? /Cash Is King and Matin Real Estate|Matin Real Estate$/ : null;
+    stripComments(fs.readFileSync(file, "utf8")).split("\n").forEach((line, i) => {
+      if (BAD.test(line) && !(ALLOWED && ALLOWED.test(line.trim()))) hits.push(`${file}:${i + 1}: ${line.trim().slice(0, 100)}`);
+    });
   }
   ok(hits.length === 0, `no Matin, MRE Office, mreoffice, Sisu or Sierra outside comments in app/ (${hits.join(" | ")})`);
 }
@@ -92,12 +98,21 @@ const stripComments = s => s.replace(/\/\*[\s\S]*?\*\//g, keepNl).replace(/(^|[\
   delete process.env.ALLOWED_EMAILS;
   ok(JSON.stringify(SUPER_ADMINS) === JSON.stringify(["brandon@cashisking.com"]) && Object.isFrozen(SUPER_ADMINS), "the one super admin is Brandon, fixed");
   ok(!isSuperAdmin("jmatin@matinrealestate.com"), "Matin's super admin is not one here");
-  ok(isAllowedIdentity("x@cashisking.com", true), "a verified Cash Is King address signs in (the default domain)");
+  ok(isAllowedIdentity("x@cashisking.com", true), "a verified Cash Is King address signs in (a default domain)");
   ok(isAllowedIdentity("X@CashIsKing.com", true), "in any case");
-  ok(!isAllowedIdentity("x@matinrealestate.com", true), "a Matin address does not");
+  /* cik-v8 (Brandon, 2026-10-15): everyone at Matin Real Estate too. */
+  ok(isAllowedIdentity("x@matinrealestate.com", true) && isAllowedIdentity("X@MatinRealEstate.com", true), "a Matin Real Estate address signs in too (cik-v8)");
+  ok(!isAllowedIdentity("x@matinrealestate.com", false) && !isAllowedIdentity("a@matinrealestate.com.evil.com", true) && !isAllowedIdentity("x@gmail.com", true),
+     "but not unverified, not a look-alike, and not any other domain");
   ok(!isAllowedIdentity("x@cashisking.com", false), "an unverified one does not");
   ok(!isAllowedIdentity("a@cashisking.com@evil.com", true), "nor one whose real domain is somewhere else");
   ok(!isAllowedIdentity("a@cashisking.com.evil.com", true) && !isAllowedIdentity("a@sub.cashisking.com", true), "nor a look-alike or a subdomain");
+  {
+    const auth = fs.readFileSync("auth.js", "utf8");
+    ok(/hd: \(allowedDomains\(\)\.length === 1 && process\.env\.GOOGLE_HD\) \|\| undefined/.test(auth), "Google's account chooser is not narrowed to one company when two may sign in");
+    ok(/@matinrealestate\.com/.test(fs.readFileSync("app/signin/page.jsx", "utf8")) && /@matinrealestate\.com/.test(fs.readFileSync("app/privacy/page.jsx", "utf8")),
+       "the sign-in and privacy pages say who may sign in");
+  }
   if (saved.d !== undefined) process.env.ALLOWED_EMAIL_DOMAINS = saved.d;
   if (saved.e !== undefined) process.env.ALLOWED_EMAILS = saved.e;
 }

@@ -39,7 +39,7 @@ export default async function SignIn({ searchParams }) {
      when the real fault was a hostname mismatch. */
   const failed = code
     ? (code === "AccessDenied"
-        ? "That account can\u2019t sign in here. Use your Cash Is King (@cashisking.com) Google account."
+        ? "That account can\u2019t sign in here. Use your @cashisking.com or @matinrealestate.com Google account."
         : "Sign-in didn\u2019t complete. Start again from this page rather than a bookmarked link \u2014 the login has to begin and end on the same address.")
     : null;
   return (
@@ -81,7 +81,8 @@ export default async function SignIn({ searchParams }) {
         </form>
 
         <p style={{ color: "#a3a09a", fontSize: 12, lineHeight: 1.6, margin: "22px 0 0" }}>
-          For the Cash Is King team. Sign in with your @cashisking.com Google account.
+          For the Cash Is King and Matin Real Estate teams. Sign in with your @cashisking.com or
+          @matinrealestate.com Google account.
         </p>
 
         {/* Reachable without signing in, by design — Google's consent screen

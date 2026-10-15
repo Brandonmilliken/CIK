@@ -239,8 +239,10 @@ const spec = TS.list.fields;
   ok(/\.\.\.extra\]/.test(ui), "an item whose group is not in the declared list still shows, in its own group");
   ok(/aria-pressed/.test(ui) && /type="search"/.test(ui), "the filter chips say which is on, and the search box is a search box");
   const pg = strip(fs.readFileSync("app/office/[room]/page.jsx", "utf8"));
-  ok(/state && !state\.imported/.test(pg) && /is on its way from CIK Office/.test(pg) && /href=\{CIK_OFFICE_URL\}/.test(pg),
-     "a room waiting for its copy says so and links to CIK Office, instead of looking empty");
+  ok(/state && !state\.imported/.test(pg) && /isn&rsquo;t set up yet/.test(pg) && !/CIK_OFFICE_URL|from CIK Office/.test(pg),
+     "a room waiting for its copy says so, instead of looking empty (cik-v9: without sending anyone to the old site)");
+  ok(!/moved here from CIK Office|old\s+CIK Office site|no longer show up anywhere/.test(ui), "cik-v9: no 'this list moved here from CIK Office' note under the lists");
+  ok(!/earlier CIK Office site/.test(strip(fs.readFileSync("app/privacy/page.jsx", "utf8"))), "cik-v9: nor on the Privacy page");
 }
 
 /* ---- v84: rooms that start empty, and long text ----------------------------- */

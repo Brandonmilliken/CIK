@@ -128,7 +128,7 @@ export default function RolesEditor({ initialPeople, initialChanges, me, superAd
       ) : (
         <form className="jx-card jx-form jx-rolesadd" onSubmit={addPerson}>
           <p className="jx-formtitle"><strong>Add someone</strong></p>
-          <p className="jx-sub">For someone who hasn&rsquo;t signed in yet. When they sign in with this @cashisking.com email they get the role you pick. (Anyone else is added as an agent the first time they sign in.)</p>
+          <p className="jx-sub">For someone who hasn&rsquo;t signed in yet. When they sign in with this email (@cashisking.com or @matinrealestate.com) they get the role you pick. (Anyone else is added as an agent the first time they sign in.)</p>
           <div className="jx-tpair">
             <div className="jx-field"><label htmlFor="ra-first">First name</label>
               <input id="ra-first" value={form.firstName} maxLength={60} required onChange={e => setForm({ ...form, firstName: e.target.value })} /></div>

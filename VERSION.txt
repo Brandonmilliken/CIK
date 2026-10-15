@@ -1,3 +1,26 @@
+cik-v9  built 2026-10-15   No more "moved here from CIK Office" notes
+
+Brandon (2026-10-15): remove text like "This list moved here from CIK Office.
+Make changes here, not in the old CIK Office site."
+- Gone from under every list, and from the Privacy page ("copied once from
+  the earlier CIK Office site").
+- A room or part that was never copied (none today) now says "isn't set up
+  yet" instead of pointing people at the old site, which redirects here now.
+Tests: 1,427 passed across 42 suites.
+
+cik-v8  built 2026-10-15   Matin Real Estate can sign in too
+
+Brandon (2026-10-15): make everyone from @matinrealestate.com able to log in.
+- Allowed domains are now cashisking.com and matinrealestate.com (the default;
+  Vercel's ALLOWED_EMAIL_DOMAINS must say the same). Everything else about
+  sign-in is unchanged: verified Google accounts only, first sign-in = agent.
+- Google's account chooser is no longer narrowed to cashisking.com (it would
+  hide Matin accounts).
+- The sign-in page, Privacy page and Leadership Settings say both domains.
+- Needs the Google sign-in app (Google Cloud project cik-office) switched from
+  Internal to External, or Google stops Matin accounts before they get here.
+Tests: 1,425 passed across 42 suites.
+
 cik-v7  built 2026-10-15   "Joint Agent Resource & Virtual Intranet System" removed
 
 Brandon (2026-10-15): remove it.

@@ -11,7 +11,7 @@
 import { notFound, redirect } from "next/navigation";
 import { atLeast, SUPER_ADMINS } from "../../../lib/authz.js";
 import { currentUser } from "../../../lib/session.js";
-import { roomBySlug, partsOf, canSeeRoom, canEditRoom, CIK_OFFICE_URL } from "../../../lib/office-rooms.js";
+import { roomBySlug, partsOf, canSeeRoom, canEditRoom } from "../../../lib/office-rooms.js";
 import { listItems, roomState } from "../../../lib/office-store.js";
 import SideMenu from "../../side-menu.jsx";
 import { podioConfig } from "../../../lib/podio.js";
@@ -153,13 +153,10 @@ export default async function RoomPage({ params, searchParams }) {
               <>
                 <p className="jx-kicker">{room.group}</p>
                 <h1>{room.label}</h1>
+                {/* cik-v9: no mention of the old CIK Office site (every room was
+                    copied 2026-10-13; this only shows if one somehow wasn't). */}
                 <div className="jx-card">
-                  <p><strong>{room.label} is on its way from CIK Office.</strong> It will appear
-                    here as soon as the one-time copy has been made.</p>
-                  <a className="jx-btn" href={CIK_OFFICE_URL} target="_blank" rel="noopener noreferrer">
-                    Open CIK Office ↗
-                  </a>
-                  <p>Until then, pick <strong>{room.label}</strong> in the CIK Office menu.</p>
+                  <p><strong>{room.label} isn&rsquo;t set up yet.</strong> Check back soon.</p>
                 </div>
               </>
             ) : items === null ? (
@@ -191,8 +188,7 @@ export default async function RoomPage({ params, searchParams }) {
                     ) : !st.imported ? (
                       <>
                         <h2 className="jx-parthead" id={`jx-part-${p.slug.replace(/[^a-z0-9-]/g, "-")}`}>{p.list.heading}</h2>
-                        <div className="jx-card"><p>These are on their way from CIK Office. Until they arrive, they are
-                          in CIK Office&rsquo;s {room.label} room.</p></div>
+                        <div className="jx-card"><p>These aren&rsquo;t set up yet. Check back soon.</p></div>
                       </>
                     ) : (
                       <OfficeList

@@ -584,12 +584,8 @@ export default function OfficeList({ slug, label, list, items: initial, canEdit,
         <div className="jx-card"><p>No {list.nounPlural || noun + "s"} listed yet.{canEdit ? ` Choose ${section ? `Edit ${label}` : "Edit list"} to add the first one.` : ""}</p></div>
       )}
 
-      {canEdit && !section && !list.native && (
-        <p className="jx-note">
-          This list moved here from CIK Office. Make changes here, not in the old
-          CIK Office site. Changes made there no longer show up anywhere.
-        </p>
-      )}
+      {/* cik-v9 (Brandon, 2026-10-15): the "this list moved here from CIK
+          Office" note is gone; the move is done and the old site redirects here. */}
       {list.readOnly && list.managedBy && (
         <p className="jx-note">
           This list comes from {list.managedBy} and stays in step with it on its own.

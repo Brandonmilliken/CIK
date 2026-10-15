@@ -1,8 +1,8 @@
 /* Google sign-in via Auth.js v5 (CIK Office, copied from Jarvis v181).
  *
- * WHO MAY SIGN IN (Brandon, 2026-10-13): anyone with a verified
- * @cashisking.com Google account (ALLOWED_EMAIL_DOMAINS, default
- * cashisking.com). There is no Sisu roster at Cash Is King, so the people
+ * WHO MAY SIGN IN (Brandon, 2026-10-13, and cik-v8 2026-10-15): anyone with
+ * a verified @cashisking.com or @matinrealestate.com Google account
+ * (ALLOWED_EMAIL_DOMAINS, default both). There is no Sisu roster at Cash Is King, so the people
  * list is built from sign-ins: the first time someone signs in they get a
  * row in `agents` as an agent, and leadership promotes them from Leadership
  * Settings. Marking someone as having left there locks them out.
@@ -28,7 +28,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           scope: "openid email profile",
           // Pre-filters the account chooser to the work domain. A convenience
           // for the user, NOT a security control — the real gate is signIn below.
-          hd: process.env.GOOGLE_HD || undefined,
+          // cik-v8: only when ONE domain may sign in. With two (Cash Is King
+          // and Matin Real Estate), filtering to either would hide the other.
+          hd: (allowedDomains().length === 1 && process.env.GOOGLE_HD) || undefined,
           prompt: "select_account",
         },
       },

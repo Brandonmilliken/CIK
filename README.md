@@ -45,8 +45,9 @@ The two apps never share data. Podio belongs here; it never goes into Jarvis.
 
 ## Who can sign in, and roles
 
-- Anyone with a verified `@cashisking.com` Google account
-  (`ALLOWED_EMAIL_DOMAINS`). The first sign-in adds them to the people list as
+- Anyone with a verified `@cashisking.com` or `@matinrealestate.com` Google
+  account (`ALLOWED_EMAIL_DOMAINS`; Matin added in cik-v8). The Google sign-in
+  app must be **External** for the second company's accounts to get through. The first sign-in adds them to the people list as
   an **agent**.
 - **Super admin:** brandon@cashisking.com, always (`lib/authz.js`
   `SUPER_ADMINS`; a code change to alter).

@@ -36,7 +36,8 @@ export default function Privacy() {
         gives it your identity and nothing more.
       </Note>
       <P>
-        Sign-in is limited to Cash Is King (@cashisking.com) accounts; any other
+        Sign-in is limited to Cash Is King (@cashisking.com) and Matin Real Estate
+        (@matinrealestate.com) accounts; any other
         address is refused. The first time you sign in, your name and email are
         added to Jarvis&rsquo;s list of people, so leadership can set your role.
       </P>
@@ -46,7 +47,6 @@ export default function Privacy() {
         Jarvis does not gather information from the public. It holds what the
         company puts into it: vendor and partner contacts, the staff directory,
         company links and documents, announcements, and help tickets people file.
-        Much of it was copied once from the earlier CIK Office site.
       </P>
 
       <H2>What we do not do</H2>
