@@ -6,8 +6,9 @@ let p = 0, f = 0;
 const ok = (c, m) => { if (c) p++; else { f++; console.log("  FAIL:", m); } };
 const strip = s => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
-ok(SUPER_ADMINS.length === 1 && SUPER_ADMINS[0] === "brandon@cashisking.com" && Object.isFrozen(SUPER_ADMINS), "Brandon is the one super admin at Cash Is King, and the list can't be changed while running");
-ok(!isSuperAdmin("jmatin@matinrealestate.com") && effectiveRole("jmatin@matinrealestate.com", "agent") === "agent", "Jarvis's other super admin (Matin's) is not one here");
+ok(SUPER_ADMINS.length === 2 && SUPER_ADMINS[0] === "brandon@cashisking.com" && SUPER_ADMINS[1] === "jmatin@matinrealestate.com" && Object.isFrozen(SUPER_ADMINS),
+   "Brandon and Jordan Matin are the super admins (cik-v10), and the list can't be changed while running");
+ok(isSuperAdmin("jmatin@matinrealestate.com") && effectiveRole("jmatin@matinrealestate.com", "agent") === "superadmin", "Jordan is a super admin whatever role is stored for him");
 ok(!isSuperAdmin("brandon@matinrealestate.com") && !isSuperAdmin("brandon@cashisking.co") && !isSuperAdmin("brandon@cashisking.com.evil.com"), "only his exact sign-in address counts");
 ok(isSuperAdmin(" Brandon@CashIsKing.com ") && !isSuperAdmin("someone@cashisking.com") && !isSuperAdmin("") && !isSuperAdmin(null), "matched on the sign-in email, any case");
 ok(effectiveRole("brandon@cashisking.com", "agent") === "superadmin" && effectiveRole("brandon@cashisking.com", "leadership") === "superadmin", "Brandon is super admin whatever is stored");

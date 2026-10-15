@@ -49,7 +49,7 @@ The two apps never share data. Podio belongs here; it never goes into Jarvis.
   account (`ALLOWED_EMAIL_DOMAINS`; Matin added in cik-v8). The Google sign-in
   app must be **External** for the second company's accounts to get through. The first sign-in adds them to the people list as
   an **agent**.
-- **Super admin:** brandon@cashisking.com, always (`lib/authz.js`
+- **Super admins:** brandon@cashisking.com and jmatin@matinrealestate.com, always (`lib/authz.js`
   `SUPER_ADMINS`; a code change to alter).
 - Leadership promotes people to **admin** or **leadership**, and marks people
   who have left, in Company → **Leadership Settings**. Every change is logged.

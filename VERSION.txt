@@ -1,3 +1,11 @@
+cik-v10  built 2026-10-15   Jordan Matin is a super admin
+
+Brandon (2026-10-15): make jmatin@matinrealestate.com a super admin.
+- Super admins are now brandon@cashisking.com and jmatin@matinrealestate.com:
+  above leadership, can do everything, and can't be changed from inside the
+  app. Set in code (lib/authz.js), never stored in the database.
+Tests: 1,428 passed across 42 suites.
+
 cik-v9  built 2026-10-15   No more "moved here from CIK Office" notes
 
 Brandon (2026-10-15): remove text like "This list moved here from CIK Office.

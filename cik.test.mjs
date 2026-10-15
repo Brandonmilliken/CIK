@@ -96,8 +96,10 @@ const stripComments = s => s.replace(/\/\*[\s\S]*?\*\//g, keepNl).replace(/(^|[\
   const saved = { d: process.env.ALLOWED_EMAIL_DOMAINS, e: process.env.ALLOWED_EMAILS };
   delete process.env.ALLOWED_EMAIL_DOMAINS;
   delete process.env.ALLOWED_EMAILS;
-  ok(JSON.stringify(SUPER_ADMINS) === JSON.stringify(["brandon@cashisking.com"]) && Object.isFrozen(SUPER_ADMINS), "the one super admin is Brandon, fixed");
-  ok(!isSuperAdmin("jmatin@matinrealestate.com"), "Matin's super admin is not one here");
+  ok(JSON.stringify(SUPER_ADMINS) === JSON.stringify(["brandon@cashisking.com", "jmatin@matinrealestate.com"]) && Object.isFrozen(SUPER_ADMINS),
+     "the super admins are Brandon and (cik-v10) Jordan Matin, fixed");
+  ok(isSuperAdmin("jmatin@matinrealestate.com") && isSuperAdmin(" JMatin@MatinRealEstate.com "), "Jordan is one, however the address is written");
+  ok(!isSuperAdmin("jmain@matinrealestate.com") && !isSuperAdmin("jordan@cashisking.com"), "nobody else is (not a near-miss spelling, not another address)");
   ok(isAllowedIdentity("x@cashisking.com", true), "a verified Cash Is King address signs in (a default domain)");
   ok(isAllowedIdentity("X@CashIsKing.com", true), "in any case");
   /* cik-v8 (Brandon, 2026-10-15): everyone at Matin Real Estate too. */
