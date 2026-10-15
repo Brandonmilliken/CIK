@@ -1,3 +1,27 @@
+cik-v5  built 2026-10-14   The Podio agent dashboard (the Deals tab)
+
+Step 4 of the plan. Brandon's choices (2026-10-14): the leaderboard ranks
+Closed deals + fees and Offers signed; everyone can see everyone's leads; the
+default window is the last 30 days; all of Podio's history is loaded.
+- The Deals tab on the home page is now the dashboard: New leads, Offers sent,
+  Offers signed, Closed deals, Fees on closed, Kicked to agents; the team
+  leaderboard (rank by Closed, Fees or Offers signed); deals in progress by
+  stage; closings; and leads kicked to outside agents with how far each got.
+  Windows: last 30 days, this month, last month, this year, all time. A
+  "Showing" menu picks a person (it starts on your own, matched by first name
+  to Podio's Lead Owner) or Everyone. Every lead links back to Podio.
+- The six lead apps (Elysium, Hot Leads, STF, LTF, No Response, Trash) are
+  copied into the database and kept current: a first load of everything in
+  pieces, then changes every ten minutes while someone is looking, and once a
+  day leads that moved apps are tidied away. Read-only: nothing is written to
+  Podio. A lead copied into two apps counts once.
+- Kicks follow agent_kicks.py: handed to an outside agent (not Jordan, Jacob or
+  blank), dated by Kicked To Agent Date, credited to the Lead Owner.
+- Needs three settings in Vercel: PODIO_CLIENT_ID, PODIO_CLIENT_SECRET and
+  PODIO_APP_TOKENS (see .env.example). Until then the tab says so.
+- Admins can run the sync by hand: /api/admin/run?job=podio
+Tests: 1,405 passed across 42 suites.
+
 cik-v4  built 2026-10-14   Ready to move the plain cikoffice.com over
 
 Step 5 of the plan: cikoffice.com (no www) is about to point at this app and

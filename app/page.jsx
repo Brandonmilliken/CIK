@@ -6,19 +6,16 @@
  *   - the announcements this person hasn't acknowledged yet (leadership posts
  *     them in Company > Announcements), with a "Got it" on each
  *   - quick links into the rooms
- *   - a Deals tab, kept so the phone's bottom bar (Home / Search / Deals /
- *     Menu) works the same as Jarvis's. It says the Podio dashboard is next.
- *
- * Step 4 of the plan replaces the middle of this page with the Podio agent
- * dashboard (each agent's own leads and deals, kicked-to-agent tracking and
- * the team leaderboard). The tab names stay, so nothing a person learned here
- * changes then.
+ *   - a Deals tab (cik-v5): the Podio agent dashboard (app/deals.jsx): each
+ *     person's numbers, deals in progress, closings, kicks to outside agents,
+ *     and the team leaderboard. It loads its own data from /api/podio/dashboard.
  */
 import { redirect } from "next/navigation";
 import { currentUser } from "../lib/session.js";
 import { listItems } from "../lib/office-store.js";
 import { acksFor, splitAnnouncements } from "../lib/announcement-acks.js";
 import { COMPANY } from "../lib/brand.js";
+import { atLeast } from "../lib/authz.js";
 import SideMenu from "./side-menu.jsx";
 import Home from "./home.jsx";
 
@@ -72,6 +69,7 @@ export default async function Page({ searchParams }) {
             announcements={ann.current}
             acknowledged={ann.acknowledged.map(a => ({ id: a.id, title: a.title, message: a.message, link: a.link }))}
             quick={QUICK}
+            admin={atLeast(user.role, "admin")}
           />
         </div>
       </main>

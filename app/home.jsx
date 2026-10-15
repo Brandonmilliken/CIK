@@ -1,12 +1,14 @@
 "use client";
 /* The home page's moving parts: the Home / Deals tabs (the phone's bottom bar
  * switches them through the same "jarvis:tab" event Jarvis's dashboard
- * listens for), and "Got it" on each announcement.
+ * listens for), and "Got it" on each announcement. cik-v5: the Deals tab is
+ * the Podio agent dashboard (app/deals.jsx).
  */
 import { useEffect, useState } from "react";
 import { cleanUrl } from "../lib/office-fields.js";
+import Deals from "./deals.jsx";
 
-export default function Home({ initialTab, hello, today, company, announcements, acknowledged, quick }) {
+export default function Home({ initialTab, hello, today, company, announcements, acknowledged, quick, admin = false }) {
   const [tab, setTab] = useState(initialTab === "deals" ? "deals" : "home");
   const [open, setOpen] = useState(announcements);
   const [busy, setBusy] = useState(null);
@@ -105,19 +107,7 @@ export default function Home({ initialTab, hello, today, company, announcements,
         </>
       )}
 
-      {tab === "deals" && (
-        <section aria-label="Deals" className="jx-card">
-          <p><strong>Your Podio dashboard is coming next.</strong></p>
-          <p>
-            This is where your own leads and deals from Podio will show: what you&rsquo;re working,
-            what&rsquo;s under contract, what was kicked to an agent, and where you sit on the team
-            leaderboard. Until then, Podio is where it all lives.
-          </p>
-          <a className="jx-btn" href="https://podio.com" target="_blank" rel="noopener noreferrer">
-            Open Podio <span aria-hidden="true">↗</span><span className="jx-sr"> (opens in a new tab)</span>
-          </a>
-        </section>
-      )}
+      {tab === "deals" && <Deals admin={admin} />}
     </div>
   );
 }

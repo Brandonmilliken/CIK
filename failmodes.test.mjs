@@ -86,9 +86,12 @@ function fakeHooks() {
 
 /* ---- 3. Nothing may start a sync outside the lease --------------------- */
 {
-  /* CIK v1 has no syncs yet (the Podio sync joins in step 4). The registry
-     is still the one place a job is named, and is empty until then. */
-  ok(Object.keys(JOBS).length === 0, "every sync in the app is in the one registry (none yet)");
+  /* cik-v5: the Podio sync is the one job, named in the one registry, and
+     nothing outside lib/refresh.js starts it except through runUnderLease. */
+  ok(JSON.stringify(Object.keys(JOBS)) === JSON.stringify(["podio"]), "every sync in the app is in the one registry (Podio)");
+  for (const file of ["app/api/podio/dashboard/route.js", "app/api/admin/run/route.js", "app/page.jsx", "app/deals.jsx"]) {
+    ok(!/syncPodio\s*\(/.test(fs.readFileSync(file, "utf8")), `${file} never calls the Podio sync directly`);
+  }
   ok(!fs.existsSync("./app/api/cron"), "there is no cron route to bypass it");
 
   const src = fs.readFileSync("./app/api/admin/run/route.js", "utf8");
